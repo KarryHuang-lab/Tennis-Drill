@@ -53,7 +53,6 @@
     .left .tag{font-size:12px;padding:2px 6px;border-radius:999px;border:1px solid var(--border);color:var(--muted);margin-left:6px}
     .list button.cancel{appearance:none;border:1px solid var(--border);background:transparent;color:var(--muted);padding:6px 10px;border-radius:10px;font-weight:600;cursor:pointer}
     .divider{height:1px;background:linear-gradient(90deg,transparent,#1a2230,transparent);margin:16px 0 8px;display:none}
-    .note{color:var(--muted);font-size:14px;margin-top:14px}
     .footer{border-top:1px solid var(--border);color:var(--muted);text-align:center;padding:24px 0 60px}
   </style>
 </head>
@@ -109,10 +108,6 @@
         <ul id="waitList" class="list"></ul>
       </div>
     </div>
-
-    <p class="note">
-      Shared sign-ups are backed by a lightweight server (Vercel KV). If the server isn't present (local preview), this page falls back to demo localStorage.
-    </p>
   </section>
 </main>
 
@@ -197,7 +192,7 @@
 
   async function detectBackend(){
     const iso=sessionSelect.value; if(!iso){USING_BACKEND=false;return}
-    try{ const r=await fetch(`/api/session?date=${iso}`,{cache:'no-store'}); if(!r.ok){USING_BACKEND=false;return} const j=await r.json(); USING_BACKEND = j && Array.isArray(j.regs) && Array.isArray(j.waitlist); if(!USING_BACKEND) statusEl.textContent="Server unavailable — running in local demo mode." }catch{ USING_BACKEND=false; statusEl.textContent="Server unavailable — running in local demo mode." }
+    try{ const r=await fetch(`/api/session?date=${iso}`,{cache:'no-store'}); if(!r.ok){USING_BACKEND=false;return} const j=await r.json(); USING_BACKEND = j && Array.isArray(j.regs) && Array.isArray(j.waitlist); if(!USING_BACKEND) statusEl.textContent="" }catch{ USING_BACKEND=false; statusEl.textContent="" }
   }
 
   function generateSessions(fromIso,count){ const start=toDateLocal(fromIso); const out=[]; for(let i=0;i<count;i++){ const d=new Date(start); d.setDate(d.getDate()+i*14); out.push(d) } return out }
@@ -255,7 +250,7 @@
 
   async function updateUI(){
     const iso=sessionSelect.value;
-    if(!iso){ remainingV.textContent="—"; deadlineV.textContent="—"; nameList.innerHTML=""; waitList.innerHTML=""; divider.style.display="none"; waitWrap.style.display="none"; doRegister.disabled=true; statusEl.textContent="No upcoming sessions."; return }
+    if(!iso){ remainingV.textContent="—"; deadlineV.textContent="—"; nameList.innerHTML=""; waitList.innerHTML=""; divider.style.display="none"; waitWrap.style.display="none"; doRegister.disabled=true; statusEl.textContent=""; return }
 
     let state, closed;
     if(USING_BACKEND){ const data=await fetchSession(iso); if(data){ state={regs:data.regs||[], waitlist:data.waitlist||[]}; closed=!!data.closed } }
@@ -280,10 +275,10 @@
     doRegister.disabled = closed;
 
     const mine=hasOwnEntry(state);
-    if(mine){ doRegister.disabled=true; statusEl.textContent=`This device already has a ${mine.device===DEVICE_ID?"registration":"record"} under "${mine.name}". Cancel it to change.` }
-    else if(closed){ statusEl.textContent="Registration is closed for this session (after 5 PM)." }  // text trimmed
+    if(mine){ doRegister.disabled=true; statusEl.textContent="" }  // remove message
+    else if(closed){ statusEl.textContent="Registration is closed for this session (after 5 PM)." }
     else if(isFull){ statusEl.textContent="This session is full. You can join the waitlist." }
-    else { statusEl.textContent = USING_BACKEND ? "" : "(Demo mode: local to this browser)"; }
+    else { statusEl.textContent = USING_BACKEND ? "" : ""; }  // no demo note
   }
 
   function cleanName(s){ return (s||"").trim().replace(/\s+/g," ") }
@@ -304,7 +299,7 @@
     if(nowLocal()>deadline){ await updateUI(); return }
 
     const state=getStateLocal(iso);
-    if(hasOwnEntry(state)){ statusEl.textContent="This device already has a spot. Cancel it first."; return }
+    if(hasOwnEntry(state)){ statusEl.textContent=""; return } // no message
     if(state.regs.some(e=>e.name===name)||state.waitlist.some(e=>e.name===name)){ statusEl.textContent="You're already on the list."; return }
     const entry={name,device:DEVICE_ID};
     if(state.regs.length<SLOT_LIMIT){ state.regs.push(entry); setStateLocal(iso,state); statusEl.textContent="Registered! See you on court." }
