@@ -11,7 +11,7 @@ export async function readState(date) {
 export async function writeState(date, state) {
   await kv.set(key(date), state);
 }
-// NEW: same-day 5 PM deadline in America/Denver
+// Same-day 5 PM deadline in America/Denver for authoritative backend logic
 export function isClosed(dateISO, now = new Date()) {
   const session = new Date(`${dateISO}T00:00:00`);
   const local = new Date(session.toLocaleString('en-US', { timeZone: TZ }));

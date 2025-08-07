@@ -3,8 +3,10 @@
 Bi-weekly tennis drill sign-ups. 6 slots per session. Waitlist with auto-promotion.
 Frontend: static `index.html`. Backend: Vercel Serverless Functions + Vercel KV.
 
-## Deadline rule
-Registration closes at **5:00 PM (America/Denver) on the day of the session**. After that, users can still **cancel**, but cannot register or move off the waitlist.
+## Deadline rule (Denver)
+- Registration closes at **5:00 PM (America/Denver) on the day of the session**.
+- Backend `isClosed()` computes cut-off in Denver time, authoritative for all requests.
+- Frontend deadline label is rendered in **Denver time** as well (to avoid confusion).
 
 ## Deploy (Vercel)
 1. Import this repo in Vercel (Other / Static; build/output empty).
