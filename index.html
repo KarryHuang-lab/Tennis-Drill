@@ -5,656 +5,334 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Tennis Drill — Sessions</title>
   <meta name="description" content="Register for biweekly Tennis Drill sessions. 6 slots per session. First come, first served." />
-  <meta property="og:title" content="Tennis Drill — Sessions" />
-  <meta property="og:description" content="Register for biweekly Tennis Drill sessions. 6 slots per session. First come, first served." />
-  <meta property="og:type" content="website" />
   <style>
-    /* Futuristic sporty tennis style — dark court with neon lines */
     :root{
-      --bg: #0b0f14;
-      --panel: #0f141b;
-      --text: #d9e1ee;
-      --muted: #93a1b3;
-      --accent: #7CFF62; /* neon tennis green */
-      --accent-2: #3ec2ff; /* electric cyan */
-      --danger: #ff5c7a;
-      --ok: #9bff8a;
-      --ring: rgba(124,255,98,0.35);
-      --border: #1a2230;
-      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+      --bg:#0b0f14;--panel:#0f141b;--text:#d9e1ee;--muted:#93a1b3;
+      --accent:#7CFF62;--accent-2:#3ec2ff;--border:#1a2230;--ring:rgba(124,255,98,0.35);
     }
-
-    *{box-sizing: border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      background: radial-gradient(900px 450px at 20% 30%, rgba(124,255,98,0.08), transparent 60%), var(--bg);
-      color:var(--text);
-      font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-      scroll-behavior:smooth;
-    }
-
-    /* HERO */
-    .hero{ position: relative; min-height: 70vh; display: grid; place-items: center; overflow: hidden; border-bottom: 1px solid var(--border); }
-    /* Subtle tennis court grid */
-    .hero::before{
-      content:""; position:absolute; inset:0;
-      background:
-        repeating-linear-gradient(0deg, transparent, transparent 46px, rgba(255,255,255,0.06) 47px),
-        repeating-linear-gradient(90deg, transparent, transparent 46px, rgba(255,255,255,0.06) 47px);
-      mask-image: radial-gradient(ellipse at center, rgba(0,0,0,.7), rgba(0,0,0,1) 70%);
-      pointer-events:none;
-    }
-    .hero-overlay{ position:absolute; inset:0; background: radial-gradient(1000px 500px at 50% 10%, rgba(124,255,98,0.15), transparent 60%), linear-gradient(180deg, rgba(0,0,0,0.0), rgba(0,0,0,0.4)); pointer-events:none; }
-
-    .hero-content{ position: relative; z-index: 1; text-align:center; padding: 48px 24px; max-width: 940px; }
-    .title{ font-size: clamp(40px, 6vw, 72px); line-height:1.05; margin:0 0 12px; letter-spacing: 0.02em; text-shadow: 0 6px 24px rgba(124,255,98,0.25); background: linear-gradient(90deg, var(--accent) 0%, #a0ffd1 25%, var(--accent-2) 55%, #9ad3ff 75%, var(--accent) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    .subtitle{ margin: 0 0 12px; font-size: clamp(16px, 2.2vw, 20px); }
-    .rules{ list-style: none; padding:0; margin: 0 0 28px; color: var(--muted); }
-    .rules li{margin: 4px 0}
-    .cta{ appearance:none; border:0; padding:14px 22px; font-weight:700; border-radius:14px; letter-spacing:.2px; color:#00141a; cursor:pointer;
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0;background: radial-gradient(900px 450px at 20% 30%, rgba(124,255,98,0.08), transparent 60%), var(--bg);
+         color:var(--text);font:16px/1.6 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial}
+    .hero{position:relative;min-height:70vh;display:grid;place-items:center;border-bottom:1px solid var(--border)}
+    .hero::before{content:"";position:absolute;inset:0;background:
+      repeating-linear-gradient(0deg,transparent,transparent 46px,rgba(255,255,255,0.06) 47px),
+      repeating-linear-gradient(90deg,transparent,transparent 46px,rgba(255,255,255,0.06) 47px);
+      mask-image: radial-gradient(ellipse at center, rgba(0,0,0,.7), rgba(0,0,0,1) 70%);pointer-events:none}
+    .hero-overlay{position:absolute;inset:0;background: radial-gradient(1000px 500px at 50% 10%, rgba(124,255,98,0.15), transparent 60%),
+      linear-gradient(180deg, rgba(0,0,0,0.0), rgba(0,0,0,0.4));pointer-events:none}
+    .hero-content{position:relative;z-index:1;text-align:center;padding:48px 24px;max-width:940px}
+    .title{font-size:clamp(40px,6vw,72px);margin:0 0 12px;background:linear-gradient(90deg,var(--accent) 0%,#a0ffd1 25%,var(--accent-2) 55%,#9ad3ff 75%,var(--accent) 100%);
+      -webkit-background-clip:text;background-clip:text;color:transparent}
+    .subtitle{margin:0 0 12px} .rules{list-style:none;padding:0;margin:0 0 28px;color:var(--muted)} .rules li{margin:4px 0}
+    .cta{appearance:none;border:0;padding:14px 22px;font-weight:700;border-radius:14px;letter-spacing:.2px;color:#00141a;cursor:pointer;
       background: radial-gradient(80% 220% at 10% 10%, var(--accent), var(--accent-2));
-      box-shadow: 0 10px 24px rgba(60,150,255,0.25), inset 0 0 0 2px rgba(0,0,0,0.05);
-      transition: transform .08s ease, box-shadow .2s ease, opacity .2s; }
-    .cta:hover{ transform: translateY(-1px); box-shadow: 0 16px 38px rgba(124,255,98,0.45), inset 0 0 0 1px rgba(255,255,255,0.08); }
-    .cta:active{ transform: translateY(1px); opacity:.96; }
-    .cta:focus-visible{ outline:none; box-shadow: 0 0 0 4px rgba(124,255,98,.35), 0 0 0 1px rgba(62,194,255,.45) inset; }
-
-    /* MAIN */
-    .section{ max-width: 800px; margin: 56px auto; padding: 0 20px; }
-    /* Ensure the Register section is exactly 800px wide and centered on large screens */
-    #register.section{ width: 800px; max-width: 800px; margin-left:auto; margin-right:auto; }
-    @media (max-width: 860px){ #register.section{ width: 100%; max-width: 800px; } }
-    /* Decorative block removed per request */
-    .card{ position: relative; z-index: 1; background: linear-gradient(180deg, rgba(124,255,98,0.06), rgba(124,255,98,0.03)); border: 1px solid var(--border); border-radius: 16px; padding: 18px; box-shadow: var(--shadow); }
-
-    .lbl{ display:block; font-weight:600; margin: 10px 0 6px; color: var(--muted); }
-    .input{ width:100%; background: var(--panel); border:1px solid var(--border); color: var(--text); padding: 12px 14px; border-radius: 12px; outline: none; box-shadow: 0 0 0 0 var(--ring); }
-    .input:focus{ box-shadow: 0 0 0 4px var(--ring); border-color: #234; }
-    /* Better spacing for select arrow */
-    select.input{ -webkit-appearance:none; -moz-appearance:none; appearance:none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23d9e1ee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>"); background-repeat:no-repeat; background-position: right 16px center; padding-right: 44px; }
-
-    .grid{ display:grid; grid-template-columns: 1fr; gap: 12px; align-items: end; }
-    .btns{ display:flex; gap: 8px; margin-top: 8px; }
-    .btn{ appearance:none; border:1px solid var(--border); background: var(--panel); color: var(--text); padding: 10px 14px; border-radius: 12px; cursor:pointer; font-weight:600; }
-    .btn.primary{ position:relative; border:1px solid rgba(62,194,255,0.35); color:#001410;
-      background: linear-gradient(135deg, var(--accent) 0%, #b7ff98 30%, var(--accent-2) 70%, #a8e4ff 100%);
-      background-size: 200% 200%;
-      box-shadow: 0 10px 28px rgba(124,255,98,0.35), 0 0 0 1px rgba(255,255,255,0.05) inset, 0 0 0 2px rgba(124,255,98,0.18) inset;
-      transition: background-position .6s ease, box-shadow .25s ease, transform .08s ease; }
-    .btn.ghost{ background: transparent; }
-    .btn:disabled{ opacity:.55; cursor:not-allowed; filter: grayscale(.25) saturate(.7); box-shadow:none; }
-
-    .status{ min-height: 24px; margin: 8px 0 0; color: var(--muted); }
-
-    .meta{ display:grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 16px 0 0; }
-    .meta .k{ display:block; font-size:12px; color: var(--muted); }
-    .meta .v{ display:block; font-size:16px; font-weight:700; }
-
-    .listWrap{ margin-top: 18px; }
-    .list{ list-style: none; padding: 0; margin: 8px 0 0; }
-    .list li{ display:flex; align-items:center; gap:10px; justify-content: space-between; padding: 8px 10px; border:1px solid var(--border); border-radius: 10px; background: #0e141b; }
-    /* Name + green dot together */
-    .left{ display:inline-flex; align-items:center; gap:8px; }
-    .left .dot{ width:8px; height:8px; border-radius:999px; background: var(--accent); }
-    .left .tag{ font-size:12px; padding:2px 6px; border-radius:999px; border:1px solid var(--border); color: var(--muted); margin-left:6px; }
-
-    .list button.cancel{ appearance:none; border:1px solid var(--border); background: transparent; color: var(--muted); padding:6px 10px; border-radius:10px; cursor:pointer; font-weight:600; pointer-events:auto; }
-    .list button.cancel:hover{ color: var(--text); border-color:#2a384f; }
-
-    .divider{ height:1px; background: linear-gradient(90deg, transparent, #1a2230, transparent); margin: 16px 0 8px; display:none; }
-
-    .note{ color: var(--muted); font-size: 14px; margin-top: 14px; }
-
-    .footer{ border-top: 1px solid var(--border); color: var(--muted); text-align:center; padding: 24px 0 60px; }
-
-    @media (min-width: 760px){ .grid{ grid-template-columns: 1.2fr auto; } .btns{ justify-content: flex-end; } }
-    /* Brighter/cooler interactions */
-    .btn.primary:hover:not(:disabled){ background-position: 100% 0; box-shadow: 0 14px 36px rgba(124,255,98,0.42), 0 0 0 2px rgba(124,255,98,0.22) inset; }
-    .btn.primary:active:not(:disabled){ transform: translateY(1px); }
-    .btn.primary:focus-visible{ outline: none; box-shadow: 0 0 0 4px rgba(124,255,98,0.35), 0 0 0 1px rgba(62,194,255,0.45) inset; }
-    /* Variant when adding to waitlist (session full) */
-    .btn.primary[data-mode="wait"]{ background: linear-gradient(135deg, #9ae6ff 0%, var(--accent-2) 45%, #b7ff98 85%, var(--accent) 100%); }
+      box-shadow: 0 10px 24px rgba(60,150,255,0.25), inset 0 0 0 2px rgba(0,0,0,0.05)}
+    .section{max-width:800px;margin:56px auto;padding:0 20px}
+    #register.section{width:800px;max-width:800px;margin-left:auto;margin-right:auto}
+    @media (max-width:860px){#register.section{width:100%}}
+    .card{background:linear-gradient(180deg,rgba(124,255,98,0.06),rgba(124,255,98,0.03));border:1px solid var(--border);border-radius:16px;padding:18px}
+    .lbl{display:block;font-weight:600;margin:10px 0 6px;color:var(--muted)}
+    .input{width:100%;background: #0f141b;border:1px solid var(--border);color:var(--text);padding:12px 14px;border-radius:12px}
+    .input:focus{outline:0;box-shadow:0 0 0 4px var(--ring)}
+    select.input{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23d9e1ee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+      background-repeat:no-repeat;background-position:right 16px center;padding-right:44px}
+    .grid{display:grid;gap:12px;align-items:end}
+    /* Put button to the right of the input on >= 560px */
+    @media (min-width:560px){ .grid{ grid-template-columns: 1fr auto; } }
+    .btns{display:flex;gap:8px;margin-top:0; align-self:end}
+    .btn{appearance:none;border:1px solid var(--border);background:#0f141b;color:var(--text);padding:10px 14px;border-radius:12px;font-weight:600;cursor:pointer}
+    .btn.primary{border:1px solid rgba(62,194,255,0.35);color:#001410;background:linear-gradient(135deg,var(--accent) 0%,#b7ff98 30%,var(--accent-2) 70%,#a8e4ff 100%)}
+    .btn[disabled]{opacity:.55;cursor:not-allowed}
+    .status{min-height:24px;margin:8px 0 0;color:var(--muted)}
+    .meta{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:16px 0 0}
+    .meta .k{display:block;font-size:12px;color:var(--muted)} .meta .v{display:block;font-size:16px;font-weight:700}
+    .list{list-style:none;padding:0;margin:8px 0 0}
+    .list li{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:#0e141b}
+    .left{display:inline-flex;align-items:center;gap:8px}
+    .left .dot{width:8px;height:8px;border-radius:999px;background:var(--accent)}
+    .left .tag{font-size:12px;padding:2px 6px;border-radius:999px;border:1px solid var(--border);color:var(--muted);margin-left:6px}
+    .list button.cancel{appearance:none;border:1px solid var(--border);background:transparent;color:var(--muted);padding:6px 10px;border-radius:10px;font-weight:600;cursor:pointer}
+    .divider{height:1px;background:linear-gradient(90deg,transparent,#1a2230,transparent);margin:16px 0 8px;display:none}
+    .note{color:var(--muted);font-size:14px;margin-top:14px}
+    .footer{border-top:1px solid var(--border);color:var(--muted);text-align:center;padding:24px 0 60px}
   </style>
 </head>
 <body>
-  <header class="hero">
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-      <h1 class="title">Tennis Drill</h1>
-      <p class="subtitle">Bi-weekly sessions starting Aug 7, 2025. <br /><strong>6 slots</strong> per session — first come, first served.</p>
-      <ul class="rules">
-        <li>Register with your name. You can cancel anytime before the session.</li>
-        <li>Registration closes at <strong>11:59 PM (day before)</strong> for each session.</li>
-      </ul>
-      <button id="registerBtn" class="cta">Register Now</button>
-    </div>
-  </header>
+<header class="hero">
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <h1 class="title">Tennis Drill</h1>
+    <p class="subtitle">Bi-weekly sessions starting Aug 7, 2025. <br /><strong>6 slots</strong> per session — first come, first served.</p>
+    <ul class="rules">
+      <li>Register with your name. You can cancel anytime before the session.</li>
+      <li>Registration closes at <strong>5:00 PM (day of session)</strong>, America/Denver.</li>
+    </ul>
+    <button id="registerBtn" class="cta">Register Now</button>
+  </div>
+</header>
 
-  <main>
-    <section id="register" class="section">
-      <h2>Register for a Session</h2>
+<main>
+  <section id="register" class="section">
+    <h2>Register for a Session</h2>
+    <div class="card">
+      <form id="regForm">
+        <label class="lbl" for="sessionSelect">Choose session</label>
+        <select id="sessionSelect" class="input"></select>
 
-      <div class="card">
-        <form id="regForm">
-          <label for="sessionSelect" class="lbl">Choose session</label>
-          <select id="sessionSelect" class="input"></select>
-
-          <div class="grid">
-            <div>
-              <label for="nameInput" class="lbl">Your name</label>
-              <input id="nameInput" type="text" class="input" placeholder="e.g., Alex Kim" maxlength="60" />
-            </div>
-            <div class="btns">
-              <button id="doRegister" class="btn primary" type="submit">Register</button>
-            </div>
+        <div class="grid">
+          <div>
+            <label class="lbl" for="nameInput">Your name</label>
+            <input id="nameInput" class="input" placeholder="e.g., Alex Kim" maxlength="60" />
           </div>
-
-          <p id="status" class="status" role="status" aria-live="polite"></p>
-        </form>
-
-        <div class="meta">
-          <div><span class="k">Remaining</span><span id="remainingV" class="v">—</span></div>
-          <div><span class="k">Deadline</span><span id="deadlineV" class="v">—</span></div>
+          <div class="btns">
+            <button id="doRegister" class="btn primary" type="submit">Register</button>
+          </div>
         </div>
 
-        <div class="listWrap">
-          <h3>Current Registrations</h3>
-          <ul id="nameList" class="list"></ul>
-        </div>
+        <p id="status" class="status" aria-live="polite"></p>
+      </form>
 
-        <div id="divider" class="divider"></div>
-
-        <div class="listWrap" id="waitWrap" style="display:none">
-          <h3>Waitlist</h3>
-          <ul id="waitList" class="list"></ul>
-        </div>
+      <div class="meta">
+        <div><span class="k">Remaining</span> <span id="remainingV" class="v">—</span></div>
+        <div><span class="k">Deadline</span> <span id="deadlineV" class="v">—</span></div>
       </div>
 
-      <p class="note">
-        Shared sign-ups are backed by a lightweight server (Vercel KV). If the server isn't present (local preview), this page falls back to demo localStorage.
-      </p>
-    </section>
-  </main>
+      <div class="listWrap">
+        <h3>Current Registrations</h3>
+        <ul id="nameList" class="list"></ul>
+      </div>
 
-  <footer class="footer">
-    <p>© <span id="year"></span> Tennis Drill</p>
-  </footer>
+      <div id="divider" class="divider"></div>
 
-  <script>
-    // Tennis Drill: shared backend (Vercel KV) with local fallback
-    // - America/Denver timezone for deadlines (server)
-    // - 6 slots per session; waitlist with auto-promotion
-    // - One entry per device per session; only your own shows Cancel
+      <div id="waitWrap" class="listWrap" style="display:none">
+        <h3>Waitlist</h3>
+        <ul id="waitList" class="list"></ul>
+      </div>
+    </div>
 
-    const START_DATE_ISO = "2025-08-07"; // yyyy-mm-dd
-    const SLOT_LIMIT = 6;
-    const SESSIONS_TO_LIST = 20;
-    const STORAGE_PREFIX = "tennis_drill_session_v3_"; // fallback schema
-    const DEVICE_ID_KEY = "tennis_drill_device_id";
+    <p class="note">
+      Shared sign-ups are backed by a lightweight server (Vercel KV). If the server isn't present (local preview), this page falls back to demo localStorage.
+    </p>
+  </section>
+</main>
 
-    let USING_BACKEND = false; // toggled at runtime after detection
+<footer class="footer">
+  <p>© <span id="year"></span> Tennis Drill</p>
+</footer>
 
-    const $ = (sel) => document.querySelector(sel);
-    const sessionSelect = $("#sessionSelect");
-    const nameInput = $("#nameInput");
-    const doRegister = $("#doRegister");
-    const statusEl = $("#status");
-    const deadlineV = $("#deadlineV");
-    const remainingV = $("#remainingV");
-    const nameList = $("#nameList");
-    const waitList = $("#waitList");
-    const waitWrap = $("#waitWrap");
-    const divider = $("#divider");
+<script>
+  const START_DATE_ISO = "2025-08-07";
+  const SLOT_LIMIT = 6;
+  const SESSIONS_TO_LIST = 20;
+  const STORAGE_PREFIX = "tennis_drill_session_v3_";
+  const DEVICE_ID_KEY = "tennis_drill_device_id";
 
-    function ensureDeviceId(){
-      let id = localStorage.getItem(DEVICE_ID_KEY);
-      if(!id){ id = Math.random().toString(36).slice(2) + Date.now().toString(36); localStorage.setItem(DEVICE_ID_KEY, id); }
-      return id;
+  let USING_BACKEND = false;
+
+  const $ = (s)=>document.querySelector(s);
+  const sessionSelect = $("#sessionSelect");
+  const nameInput = $("#nameInput");
+  const doRegister = $("#doRegister");
+  const statusEl = $("#status");
+  const deadlineV = $("#deadlineV");
+  const remainingV = $("#remainingV");
+  const nameList = $("#nameList");
+  const waitList = $("#waitList");
+  const waitWrap = $("#waitWrap");
+  const divider = $("#divider");
+
+  function ensureDeviceId(){
+    let id = localStorage.getItem(DEVICE_ID_KEY);
+    if(!id){ id=Math.random().toString(36).slice(2)+Date.now().toString(36); localStorage.setItem(DEVICE_ID_KEY,id) }
+    return id;
+  }
+  const DEVICE_ID = ensureDeviceId();
+
+  function toDateLocal(iso){ const [y,m,d]=iso.split("-").map(Number); return new Date(y,m-1,d) }
+  function fmtDateLong(d){ return d.toLocaleString("en-US",{weekday:"short",year:"numeric",month:"short",day:"numeric"}) }
+  // NEW: same-day 5:00 PM deadline (America/Denver displayed using local time)
+  function fmtDeadline(d){ const x=new Date(d); x.setHours(17,0,0,0); return x }
+  function nowLocal(){ return new Date() }
+  function endOfDayLocal(d){ const e=new Date(d); e.setHours(23,59,59,999); return e }
+  function isFinished(d){ return nowLocal()>endOfDayLocal(d) }
+
+  function getKey(iso){ return STORAGE_PREFIX+iso }
+  function safeParse(json,fallback){ try{return JSON.parse(json)}catch(_){return fallback} }
+  function normalize(arr){ return (arr||[]).map(x=>typeof x==="string"?{name:x,device:null}:{name:String(x.name||""),device:x.device||null}) }
+  function getStateLocal(iso){
+    const raw=localStorage.getItem(getKey(iso));
+    if(!raw){
+      const old=localStorage.getItem("tennis_drill_session_v2_"+iso)||localStorage.getItem("tennis_drill_session_"+iso);
+      if(old){ const p=safeParse(old,[]); const regs=Array.isArray(p.regs)?normalize(p.regs):normalize(p); return {regs,waitlist:[]} }
+      return {regs:[],waitlist:[]}
     }
-    const DEVICE_ID = ensureDeviceId();
+    const p=safeParse(raw,null); if(!p) return {regs:[],waitlist:[]}
+    return {regs:normalize(p.regs||p), waitlist:normalize(p.waitlist||[])}
+  }
+  function setStateLocal(iso, state){ const s={regs:normalize(state.regs||[]),waitlist:normalize(state.waitlist||[])}; localStorage.setItem(getKey(iso),JSON.stringify(s)) }
 
-    function toDateLocal(isoDate){ const [y,m,d] = isoDate.split("-").map(Number); return new Date(y, m-1, d, 0, 0, 0, 0); }
-    function fmtDateLong(d){ return d.toLocaleString("en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" }); }
-    function fmtDeadline(d){ const deadline = new Date(d); deadline.setDate(deadline.getDate() - 1); deadline.setHours(23,59,59,999); return deadline; }
-    function nowLocal(){ return new Date(); }
-    function endOfDayLocal(d){ const e = new Date(d); e.setHours(23,59,59,999); return e; }
-    function isFinished(d){ return nowLocal() > endOfDayLocal(d); }
-
-    // ------- fallback local store (used only if backend unavailable) -------
-    function getKey(iso){ return STORAGE_PREFIX + iso; }
-    function safeParse(json, fallback){ try { return JSON.parse(json); } catch(_) { return fallback; } }
-    function normalizeEntries(arr){
-      return (arr || []).map(x => {
-        if (typeof x === 'string') return { name: x, device: null };
-        if (x && typeof x === 'object') return { name: String(x.name || ""), device: x.device || null };
-        return { name: "", device: null };
-      });
-    }
-    function getStateLocal(iso){
-      const raw = localStorage.getItem(getKey(iso));
-      if(!raw){
-        const oldRaw = localStorage.getItem("tennis_drill_session_v2_" + iso) || localStorage.getItem("tennis_drill_session_" + iso);
-        if (oldRaw){
-          const parsed = safeParse(oldRaw, []);
-          const regs = Array.isArray(parsed.regs) ? normalizeEntries(parsed.regs) : normalizeEntries(parsed);
-          return { regs, waitlist: [] };
-        }
-        return { regs: [], waitlist: [] };
-      }
-      const parsed = safeParse(raw, null);
-      if (!parsed) return { regs: [], waitlist: [] };
-      const regs = normalizeEntries(parsed.regs || parsed);
-      const waitlist = normalizeEntries(parsed.waitlist || []);
-      return { regs, waitlist };
-    }
-    function setStateLocal(iso, state){
-      const norm = { regs: normalizeEntries(state.regs || []), waitlist: normalizeEntries(state.waitlist || []) };
-      localStorage.setItem(getKey(iso), JSON.stringify(norm));
-    }
-
-    // ------- backend API helpers -------
-    async function fetchSession(iso){
-      if (!USING_BACKEND) return null;
-      try{
-        const r = await fetch(`/api/session?date=${iso}`, { cache: 'no-store' });
-        if (!r.ok) throw new Error('session not ok');
-        return await r.json();
-      }catch(err){ USING_BACKEND = false; return null; }
-    }
-    async function apiRegister(iso, name, device){
-      if (!USING_BACKEND) return null;
-      try{
-        const r = await fetch('/api/register', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({date: iso, name, device}) });
-        return await r.json();
-      }catch(err){ USING_BACKEND = false; return null; }
-    }
-    async function apiCancel(iso, token){
-      if (!USING_BACKEND) return null;
-      try{
-        const r = await fetch('/api/cancel', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({date: iso, device: token.device || null, name: token.name || null}) });
-        return await r.json();
-      }catch(err){ USING_BACKEND = false; return null; }
-    }
-
-    async function detectBackend(){
-      // probe first session endpoint; if it 200s with expected keys, keep backend on
-      const iso = sessionSelect.value;
-      if (!iso) { USING_BACKEND = false; return; }
-      try{
-        const r = await fetch(`/api/session?date=${iso}`, { cache: 'no-store' });
-        if (!r.ok) { USING_BACKEND = false; return; }
-        const j = await r.json();
-        USING_BACKEND = j && Array.isArray(j.regs) && Array.isArray(j.waitlist);
-        if (!USING_BACKEND){ statusEl.textContent = "Server unavailable — running in local demo mode."; }
-      }catch{ USING_BACKEND = false; statusEl.textContent = "Server unavailable — running in local demo mode."; }
-    }
-
-    function generateSessions(fromIso, count){ const start = toDateLocal(fromIso); const sessions = []; for (let i=0; i<count; i++){ const d = new Date(start); d.setDate(d.getDate() + i*14); sessions.push(d); } return sessions; }
-
-    function populateSessions(){
-      const many = generateSessions(START_DATE_ISO, SESSIONS_TO_LIST * 4);
-      const upcoming = many.filter(d => !isFinished(d)).slice(0, SESSIONS_TO_LIST);
-      const prev = sessionSelect.value;
-      sessionSelect.innerHTML = "";
-      upcoming.forEach((d) => {
-        const iso = d.toISOString().slice(0,10);
-        const opt = document.createElement("option");
-        opt.value = iso;
-        opt.textContent = fmtDateLong(d) + " (" + iso + ")";
-        sessionSelect.appendChild(opt);
-      });
-      if (prev && [...sessionSelect.options].some(o => o.value === prev)) sessionSelect.value = prev;
-      else if (upcoming.length) sessionSelect.value = upcoming[0].toISOString().slice(0,10);
-    }
-
-    function hasOwnEntry(state){
-      const inRegs = state.regs.find(e => e.device === DEVICE_ID);
-      const inWait = state.waitlist.find(e => e.device === DEVICE_ID);
-      return inRegs || inWait || null;
-    }
-
-    function renderLists(state){
-      const bindCancel = (btn) => {
-        btn.addEventListener("click", (e) => {
-          e.preventDefault(); e.stopPropagation();
-          const iso = sessionSelect.value;
-          const token = { device: btn.getAttribute("data-device"), name: btn.getAttribute("data-name") };
-          void cancelEntry(iso, token);
-        });
-      };
-
-      // Registrations
-      nameList.innerHTML = "";
-      state.regs.forEach(e => {
-        const li = document.createElement("li");
-        const left = document.createElement("span"); left.className = "left";
-        const dot = document.createElement("span"); dot.className = "dot";
-        const label = document.createElement("span"); label.textContent = e.name;
-        left.appendChild(dot); left.appendChild(label);
-        if (e.device === DEVICE_ID){ const tag = document.createElement("span"); tag.className = "tag"; tag.textContent = "Yours"; left.appendChild(tag); }
-        li.appendChild(left);
-        if (e.device === DEVICE_ID){
-          const btn = document.createElement("button"); btn.className = "cancel"; btn.type = "button"; btn.textContent = "Cancel"; btn.setAttribute("data-name", e.name); btn.setAttribute("data-device", DEVICE_ID);
-          li.appendChild(btn); bindCancel(btn);
-        }
-        nameList.appendChild(li);
-      });
-
-      // Waitlist
-      waitList.innerHTML = "";
-      state.waitlist.forEach((e, idx) => {
-        const li = document.createElement("li");
-        const left = document.createElement("span"); left.className = "left";
-        const pos = document.createElement("span"); pos.textContent = `#${idx+1}`; pos.style.color = "var(--muted)";
-        const dot = document.createElement("span"); dot.className = "dot";
-        const label = document.createElement("span"); label.textContent = e.name;
-        left.appendChild(pos); left.appendChild(dot); left.appendChild(label);
-        if (e.device === DEVICE_ID){ const tag = document.createElement("span"); tag.className = "tag"; tag.textContent = "Yours"; left.appendChild(tag); }
-        li.appendChild(left);
-        if (e.device === DEVICE_ID){
-          const btn = document.createElement("button"); btn.className = "cancel"; btn.type = "button"; btn.textContent = "Cancel"; btn.setAttribute("data-name", e.name); btn.setAttribute("data-device", DEVICE_ID);
-          li.appendChild(btn); bindCancel(btn);
-        }
-        waitList.appendChild(li);
-      });
-    }
-
-    async function updateUI(){
-      const iso = sessionSelect.value;
-      if (!iso){
-        remainingV.textContent = "—"; deadlineV.textContent = "—";
-        nameList.innerHTML = ""; waitList.innerHTML = "";
-        divider.style.display = "none"; waitWrap.style.display = "none";
-        doRegister.disabled = true; statusEl.textContent = "No upcoming sessions."; return;
-      }
-
-      let state, closed;
-      if (USING_BACKEND){
-        const data = await fetchSession(iso);
-        if (data){ state = { regs: data.regs || [], waitlist: data.waitlist || [] }; closed = !!data.closed; }
-      }
-      if (!state){ // fallback
-        const sessionDate = toDateLocal(iso);
-        state = getStateLocal(iso);
-        closed = nowLocal() > fmtDeadline(sessionDate);
-      }
-
-      const remaining = Math.max(0, SLOT_LIMIT - state.regs.length);
-      const isFull = remaining === 0;
-      const deadline = fmtDeadline(toDateLocal(iso));
-
-      remainingV.textContent = remaining + " out of " + SLOT_LIMIT;
-      deadlineV.textContent = deadline.toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute:"2-digit" });
-
-      renderLists(state);
-
-      const showWait = state.waitlist.length > 0;
-      divider.style.display = showWait ? "block" : "none";
-      waitWrap.style.display = showWait ? "block" : "none";
-
-      doRegister.textContent = isFull ? "Add to waitlist" : "Register";
-      doRegister.dataset.mode = isFull ? "wait" : "reg";
-      doRegister.disabled = closed;
-
-      const mine = hasOwnEntry(state);
-      if (mine){ doRegister.disabled = true; statusEl.textContent = `This device already has a ${mine.device===DEVICE_ID?"registration":"record"} under \"${mine.name}\". Cancel it to change.`; }
-      else if (closed){ statusEl.textContent = "Registration is closed for this session. You can still cancel."; }
-      else if (isFull){ statusEl.textContent = "This session is full. You can join the waitlist."; }
-      else { statusEl.textContent = USING_BACKEND ? "" : "(Demo mode: local to this browser)"; }
-    }
-
-    function cleanName(s){ return (s || "").trim().replace(/\s+/g, " "); }
-
-    async function onRegister(e){
-      e.preventDefault();
-      const iso = sessionSelect.value; const name = cleanName(nameInput.value);
-      if (!name){ statusEl.textContent = "Please enter your name."; nameInput.focus(); return; }
-
-      if (USING_BACKEND){
-        const res = await apiRegister(iso, name, DEVICE_ID);
-        if (!res){ statusEl.textContent = "Server unavailable — saved locally for now."; // fallback
-        } else if (!res.ok){
-          const map = { 'closed': 'Registration is closed for this session.', 'already-has-spot': 'This device already has a spot. Cancel it first.', 'name-exists': "You're already on the list.", 'busy': 'Please try again.' };
-          statusEl.textContent = map[res.error] || 'Failed to register.'; await updateUI(); return;
-        } else {
-          statusEl.textContent = res.mode === 'waitlisted' ? `Session is full — added to waitlist (position #${res.position}).` : 'Registered! See you on court.';
-          await updateUI(); nameInput.value = ""; return;
-        }
-      }
-
-      // Fallback local
-      const sessionDate = toDateLocal(iso);
-      const deadline = fmtDeadline(sessionDate);
-      if (nowLocal() > deadline){ await updateUI(); return; }
-
-      const state = getStateLocal(iso);
-      if (hasOwnEntry(state)){ statusEl.textContent = "This device already has a spot. Cancel it first."; return; }
-      if (state.regs.some(e => e.name === name) or state.waitlist.some(e => e.name === name)){ statusEl.textContent = "You're already on the list."; return; }
-      const entry = { name, device: DEVICE_ID };
-      if (state.regs.length < SLOT_LIMIT){ state.regs.push(entry); setStateLocal(iso, state); statusEl.textContent = "Registered! See you on court."; }
-      else { state.waitlist.push(entry); setStateLocal(iso, state); const pos = state.waitlist.length; statusEl.textContent = `Session is full — added to waitlist (position #${pos}).`; }
-      nameInput.value = ""; await updateUI();
-    }
-
-    async function cancelEntry(iso, token){
-      if (USING_BACKEND){
-        const res = await apiCancel(iso, token);
-        if (!res){ statusEl.textContent = "Server unavailable — if you cancel now it only affects this browser."; }
-        else if (!res.ok){ statusEl.textContent = res.error === 'forbidden-or-not-found' ? 'You can only cancel your own spot.' : 'Failed to cancel.'; await updateUI(); return; }
-        else { statusEl.textContent = res.promoted ? `Your spot has been canceled. Promoted ${res.promoted.name} from waitlist.` : 'Canceled.'; await updateUI(); return; }
-      }
-
-      // Fallback local
-      const state = getStateLocal(iso);
-      let changed = false;
-      const removeByIndex = (arr, idx) => { if (idx >= 0){ arr.splice(idx,1); changed = true; } };
-
-      const dev = token && token.device || null;
-      const nm = token && token.name || "";
-
-      if (dev && dev !== DEVICE_ID){ statusEl.textContent = "You can only cancel your own spot."; setStateLocal(iso, state); await updateUI(); return; }
-
-      if (dev === DEVICE_ID){
-        let idx = state.regs.findIndex(e => e.device === DEVICE_ID);
-        if (idx !== -1){ removeByIndex(state.regs, idx); if (state.waitlist.length){ const promoted = state.waitlist.shift(); state.regs.push(promoted); statusEl.textContent = `Your spot has been canceled. Promoted ${promoted.name} from waitlist.`; } else { statusEl.textContent = "Your spot has been canceled."; } }
-        else { idx = state.waitlist.findIndex(e => e.device === DEVICE_ID); if (idx !== -1){ removeByIndex(state.waitlist, idx); statusEl.textContent = "Removed from waitlist."; } }
-      } else {
-        const typed = cleanName(nameInput.value);
-        if (!typed or typed !== nm){ statusEl.textContent = "Type this exact name in the input above, then click Cancel again."; setStateLocal(iso, state); await updateUI(); return; }
-        let idx = state.regs.findIndex(e => e.device == null && e.name === nm);
-        if (idx !== -1){ removeByIndex(state.regs, idx); if (state.waitlist.length){ const promoted = state.waitlist.shift(); state.regs.push(promoted); statusEl.textContent = `Canceled. Promoted ${promoted.name} from waitlist.`; } else { statusEl.textContent = "Canceled."; } }
-        else { idx = state.waitlist.findIndex(e => e.device == null && e.name === nm); if (idx !== -1){ removeByIndex(state.waitlist, idx); statusEl.textContent = "Canceled from waitlist."; } else { statusEl.textContent = "No matching entry found."; } }
-      }
-
-      setStateLocal(iso, state); await updateUI();
-    }
-
-    document.addEventListener("DOMContentLoaded", () => { void start(); });
-
-    async function start(){
-      populateSessions();
-      await detectBackend();
-      await updateUI();
-
-      $("#registerBtn").addEventListener("click", () => { $("#register").scrollIntoView({behavior:"smooth"}); });
-      sessionSelect.addEventListener("change", () => void updateUI());
-      $("#regForm").addEventListener("submit", (e) => void onRegister(e));
-
-      // Delegate cancel as a fallback (in addition to per-button binding)
-      [nameList, waitList].forEach(list => list.addEventListener("click", (e) => {
-        const btn = e.target.closest("button.cancel"); if(!btn) return; e.preventDefault(); e.stopPropagation();
-        const iso = sessionSelect.value; const token = { device: btn.getAttribute("data-device"), name: btn.getAttribute("data-name") };
-        void cancelEntry(iso, token);
-      }));
-
-      // Smoke tests only in local demo mode to avoid touching real data
-      if (!USING_BACKEND){
-        try {
-          const firstIso = sessionSelect.value;
-          const snap = JSON.stringify(getStateLocal(firstIso));
-
-          const devA = DEVICE_ID, devB = devA + "_b";
-          setStateLocal(firstIso, { regs: [], waitlist: [] });
-          const regs = Array.from({length: SLOT_LIMIT}, (_,i)=>({ name: `Cap ${i+1}`, device: devB }));
-          const wls = [{ name: "WL 1", device: devB }];
-          setStateLocal(firstIso, { regs, waitlist: wls });
-          let s = getStateLocal(firstIso);
-          console.assert(s.regs.length === SLOT_LIMIT && s.waitlist.length === 1, "Setup full with waitlist");
-
-          // Cannot cancel others
-          await cancelEntry(firstIso, { device: devB });
-          s = getStateLocal(firstIso);
-          console.assert(s.regs.length === SLOT_LIMIT && s.waitlist.length === 1, "Cannot cancel others' entries");
-
-          // Add this device to waitlist then cancel
-          s = getStateLocal(firstIso); s.waitlist.push({ name: "Mine WL", device: DEVICE_ID }); setStateLocal(firstIso, s); await updateUI();
-          await cancelEntry(firstIso, { name: "Mine WL", device: DEVICE_ID });
-          s = getStateLocal(firstIso); console.assert(!s.waitlist.some(e=>e.device===DEVICE_ID), "My waitlist entry canceled");
-
-          const snapLegacy = JSON.stringify(getStateLocal(firstIso));
-          setStateLocal(firstIso, { regs: [{ name: "Legacy A", device: null }], waitlist: [] });
-          nameInput.value = "Wrong"; await cancelEntry(firstIso, { name: "Legacy A", device: null });
-          let t = getStateLocal(firstIso); console.assert(t.regs.length === 1, "Legacy not canceled when name mismatch");
-          nameInput.value = "Legacy A"; await cancelEntry(firstIso, { name: "Legacy A", device: null });
-          t = getStateLocal(firstIso); console.assert(t.regs.length === 0, "Legacy canceled when name matches");
-
-          setStateLocal(firstIso, { regs: Array.from({length: SLOT_LIMIT}, (_,i)=>({name:`F${i+1}`, device: devB})), waitlist: [] }); await updateUI();
-          console.assert(divider.style.display === "none" && waitWrap.style.display === "none", "No waitlist UI when empty");
-          const s2 = getStateLocal(firstIso); s2.waitlist.push({ name: "WL X", device: devB }); setStateLocal(firstIso, s2); await updateUI();
-          console.assert(divider.style.display === "block" && waitWrap.style.display === "block", "Waitlist UI shows when someone is on waitlist");
-
-          populateSessions();
-          const opts = [...sessionSelect.options].map(o=>o.value); const allUpcoming = opts.every(v => !isFinished(toDateLocal(v)));
-          console.assert(allUpcoming, "Dropdown only contains unfinished days");
-
-          const snapOwn = JSON.stringify(getStateLocal(firstIso));
-          setStateLocal(firstIso, { regs: [{ name: "Mine Reg", device: DEVICE_ID }], waitlist: [] }); await updateUI();
-          console.assert(doRegister.disabled === true, "Register disabled when device already registered");
-          setStateLocal(firstIso, JSON.parse(snapOwn)); await updateUI();
-
-          setStateLocal(firstIso, JSON.parse(snap)); await updateUI();
-        } catch (err){ console.warn("Smoke tests warning:", err); }
-      }
-
-      $("#year").textContent = new Date().getFullYear();
-    }
-  </script>
-
-  <!-- =================== Serverless API files (create these files when deploying on Vercel) ===================
-  File: package.json
-  {
-    "type": "module",
-    "dependencies": {
-      "@vercel/kv": "^1.0.0"
-    }
+  async function fetchSession(iso){
+    if(!USING_BACKEND) return null;
+    try{ const r=await fetch(`/api/session?date=${iso}`,{cache:'no-store'}); if(!r.ok) throw 0; return await r.json() }catch{ USING_BACKEND=false; return null }
+  }
+  async function apiRegister(iso,name,device){
+    if(!USING_BACKEND) return null;
+    try{ const r=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date:iso,name,device})}); return await r.json() }catch{ USING_BACKEND=false; return null }
+  }
+  async function apiCancel(iso,token){
+    if(!USING_BACKEND) return null;
+    try{ const r=await fetch('/api/cancel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date:iso,device:token.device||null,name:token.name||null})}); return await r.json() }catch{ USING_BACKEND=false; return null }
   }
 
-  File: api/_util.js
-  import { kv } from '@vercel/kv';
+  async function detectBackend(){
+    const iso=sessionSelect.value; if(!iso){USING_BACKEND=false;return}
+    try{ const r=await fetch(`/api/session?date=${iso}`,{cache:'no-store'}); if(!r.ok){USING_BACKEND=false;return} const j=await r.json(); USING_BACKEND = j && Array.isArray(j.regs) && Array.isArray(j.waitlist); if(!USING_BACKEND) statusEl.textContent="Server unavailable — running in local demo mode." }catch{ USING_BACKEND=false; statusEl.textContent="Server unavailable — running in local demo mode." }
+  }
 
-  export const SLOT_LIMIT = 6;
-  export const TZ = 'America/Denver';
-  const key = (date) => `td:session:${date}`;
-  const lockKey = (date) => `td:lock:${date}`;
-
-  export async function readState(date) {
-    return (await kv.get(key(date))) ?? { regs: [], waitlist: [] };
-  }
-  export async function writeState(date, state) {
-    await kv.set(key(date), state);
-  }
-  export function isClosed(dateISO, now = new Date()) {
-    // Deadline = 11:59:59 PM the day *before* (America/Denver)
-    const session = new Date(`${dateISO}T00:00:00`);
-    const local = new Date(session.toLocaleString('en-US', { timeZone: TZ }));
-    local.setDate(local.getDate() - 1);
-    local.setHours(23, 59, 59, 999);
-    const deadlineUTC = new Date(local.toLocaleString('en-US', { timeZone: 'UTC' }));
-    return now > deadlineUTC;
-  }
-  export async function withLock(date, fn) {
-    const lk = lockKey(date);
-    const token = Math.random().toString(36).slice(2);
-    const ok = await kv.set(lk, token, { nx: true, px: 5000 });
-    if (!ok) return { ok: false, error: 'busy' };
-    try { return await fn(); }
-    finally {
-      const v = await kv.get(lk);
-      if (v === token) await kv.del(lk);
+  function generateSessions(fromIso,count){ const start=toDateLocal(fromIso); const out=[]; for(let i=0;i<count;i++){ const d=new Date(start); d.setDate(d.getDate()+i*14); out.push(d) } return out }
+  function populateSessions(){
+    const many=generateSessions(START_DATE_ISO,SESSIONS_TO_LIST*12);
+    let upcoming = many.filter(d=>!isFinished(d));
+    if(upcoming.length===0){
+      const start=toDateLocal(START_DATE_ISO); const today=nowLocal();
+      const days=Math.floor((today-start)/(24*60*60*1000)); const steps=Math.max(0,Math.ceil(days/14));
+      const next=new Date(start); next.setDate(next.getDate()+steps*14);
+      upcoming = generateSessions(next.toISOString().slice(0,10), SESSIONS_TO_LIST);
     }
+    const prev=sessionSelect.value; sessionSelect.innerHTML="";
+    upcoming.slice(0,SESSIONS_TO_LIST).forEach(d=>{ const iso=d.toISOString().slice(0,10); const o=document.createElement("option"); o.value=iso; o.textContent=`${fmtDateLong(d)} (${iso})`; sessionSelect.appendChild(o) });
+    if(prev && [...sessionSelect.options].some(o=>o.value===prev)) sessionSelect.value=prev;
+    else if(sessionSelect.options.length) sessionSelect.value=sessionSelect.options[0].value;
   }
 
-  File: api/session.js
-  import { SLOT_LIMIT, readState, isClosed } from './_util.js';
-  export default async function handler(req, res) {
-    const url = new URL(req.url, `https://${req.headers.host}`);
-    const date = url.searchParams.get('date');
-    if (!date) return res.status(400).json({ error: 'date required (YYYY-MM-DD)' });
-    const state = await readState(date);
-    const remaining = Math.max(0, SLOT_LIMIT - state.regs.length);
-    return res.status(200).json({ regs: state.regs, waitlist: state.waitlist, remaining, closed: isClosed(date) });
+  function hasOwnEntry(state){
+    const inRegs=state.regs.find(e=>e.device===DEVICE_ID);
+    const inWait=state.waitlist.find(e=>e.device===DEVICE_ID);
+    return inRegs||inWait||null;
   }
 
-  File: api/register.js
-  import { SLOT_LIMIT, withLock, readState, writeState, isClosed } from './_util.js';
-  export default async function handler(req, res) {
-    if (req.method !== 'POST') return res.status(405).end();
-    const { date, name, device } = req.body ?? {};
-    if (!date || !name || !device) return res.status(400).json({ ok:false, error: 'date, name, device required' });
+  function renderLists(state){
+    const bind = (btn)=>btn.addEventListener("click",(e)=>{e.preventDefault();e.stopPropagation(); const iso=sessionSelect.value; const token={device:btn.getAttribute("data-device"),name:btn.getAttribute("data-name")}; void cancelEntry(iso,token)});
 
-    const out = await withLock(date, async () => {
-      if (isClosed(date)) return { ok:false, error:'closed' };
-      const state = await readState(date);
-      if (state.regs.some(e => e.device === device) or state.waitlist.some(e => e.device === device)) return { ok:false, error:'already-has-spot' };
-      if (state.regs.some(e => e.name === name) or state.waitlist.some(e => e.name === name)) return { ok:false, error:'name-exists' };
-      const entry = { name, device };
-      let mode = 'registered';
-      if (state.regs.length < SLOT_LIMIT) state.regs.push(entry); else { state.waitlist.push(entry); mode = 'waitlisted'; }
-      await writeState(date, state);
-      return { ok:true, mode, position: mode==='waitlisted' ? state.waitlist.length : null };
+    nameList.innerHTML="";
+    state.regs.forEach(e=>{
+      const li=document.createElement("li");
+      const left=document.createElement("span"); left.className="left";
+      const dot=document.createElement("span"); dot.className="dot";
+      const label=document.createElement("span"); label.textContent=e.name;
+      left.appendChild(dot); left.appendChild(label);
+      if(e.device===DEVICE_ID){ const tag=document.createElement("span"); tag.className="tag"; tag.textContent="Yours"; left.appendChild(tag) }
+      li.appendChild(left);
+      if(e.device===DEVICE_ID){ const b=document.createElement("button"); b.className="cancel"; b.type="button"; b.textContent="Cancel"; b.setAttribute("data-name",e.name); b.setAttribute("data-device",DEVICE_ID); li.appendChild(b); bind(b) }
+      nameList.appendChild(li);
     });
 
-    if (!out?.ok){
-      const map = { closed:400, 'already-has-spot':409, 'name-exists':409, busy:423 };
-      return res.status(map[out?.error] ?? 500).json(out);
-    }
-    return res.status(200).json(out);
-  }
-
-  File: api/cancel.js
-  import { withLock, readState, writeState } from './_util.js';
-  export default async function handler(req, res) {
-    if (req.method !== 'POST') return res.status(405).end();
-    const { date, device, name } = req.body ?? {};
-    if (!date) return res.status(400).json({ ok:false, error: 'date required' });
-
-    const out = await withLock(date, async () => {
-      const state = await readState(date);
-      let idx = -1; let removedFromRegs = false;
-
-      if (device){ idx = state.regs.findIndex(e => e.device === device); if (idx === -1) idx = state.waitlist.findIndex(e => e.device === device); }
-      else if (name){ idx = state.regs.findIndex(e => !e.device && e.name === name); if (idx === -1) idx = state.waitlist.findIndex(e => !e.device && e.name === name); }
-
-      if (idx === -1) return { ok:false, error:'forbidden-or-not-found' };
-
-      // Determine if removing from regs or waitlist
-      removedFromRegs = state.regs[idx]?.name != null and (state.regs[idx]?.device ? (device and state.regs[idx].device === device) : (!device and state.regs[idx].name === name));
-      if (removedFromRegs) state.regs.splice(idx,1); else state.waitlist.splice(idx,1);
-
-      if (removedFromRegs && state.waitlist.length){
-        const promoted = state.waitlist.shift();
-        state.regs.push(promoted);
-        await writeState(date, state);
-        return { ok:true, promoted };
-      }
-      await writeState(date, state);
-      return { ok:true };
+    waitList.innerHTML="";
+    state.waitlist.forEach((e,idx)=>{
+      const li=document.createElement("li");
+      const left=document.createElement("span"); left.className="left";
+      const pos=document.createElement("span"); pos.textContent=`#${idx+1}`; pos.style.color="var(--muted)";
+      const dot=document.createElement("span"); dot.className="dot";
+      const label=document.createElement("span"); label.textContent=e.name;
+      left.appendChild(pos); left.appendChild(dot); left.appendChild(label);
+      if(e.device===DEVICE_ID){ const tag=document.createElement("span"); tag.className="tag"; tag.textContent="Yours"; left.appendChild(tag) }
+      li.appendChild(left);
+      if(e.device===DEVICE_ID){ const b=document.createElement("button"); b.className="cancel"; b.type="button"; b.textContent="Cancel"; b.setAttribute("data-name",e.name); b.setAttribute("data-device",DEVICE_ID); li.appendChild(b); bind(b) }
+      waitList.appendChild(li);
     });
-
-    if (!out?.ok) return res.status(403).json(out);
-    return res.status(200).json(out);
   }
-  =================== End of serverless files =================== -->
+
+  async function updateUI(){
+    const iso=sessionSelect.value;
+    if(!iso){ remainingV.textContent="—"; deadlineV.textContent="—"; nameList.innerHTML=""; waitList.innerHTML=""; divider.style.display="none"; waitWrap.style.display="none"; doRegister.disabled=true; statusEl.textContent="No upcoming sessions."; return }
+
+    let state, closed;
+    if(USING_BACKEND){ const data=await fetchSession(iso); if(data){ state={regs:data.regs||[], waitlist:data.waitlist||[]}; closed=!!data.closed } }
+    if(!state){ const sessionDate=toDateLocal(iso); state=getStateLocal(iso); closed=nowLocal()>fmtDeadline(sessionDate) }
+
+    const remaining=Math.max(0, SLOT_LIMIT - state.regs.length);
+    const isFull=remaining===0;
+    const deadline=fmtDeadline(toDateLocal(iso));
+
+    remainingV.textContent = remaining+" out of "+SLOT_LIMIT;
+    deadlineV.textContent = deadline.toLocaleString("en-US",{weekday:"short",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"});
+
+    renderLists(state);
+
+    const showWait=state.waitlist.length>0;
+    divider.style.display = showWait ? "block" : "none";
+    waitWrap.style.display = showWait ? "block" : "none";
+
+    doRegister.textContent = isFull ? "Add to waitlist" : "Register";
+    doRegister.dataset.mode = isFull ? "wait" : "reg";
+    doRegister.disabled = closed;
+
+    const mine=hasOwnEntry(state);
+    if(mine){ doRegister.disabled=true; statusEl.textContent=`This device already has a ${mine.device===DEVICE_ID?"registration":"record"} under "${mine.name}". Cancel it to change.` }
+    else if(closed){ statusEl.textContent="Registration is closed for this session (after 5 PM). You can still cancel." }
+    else if(isFull){ statusEl.textContent="This session is full. You can join the waitlist." }
+    else { statusEl.textContent = USING_BACKEND ? "" : "(Demo mode: local to this browser)"; }
+  }
+
+  function cleanName(s){ return (s||"").trim().replace(/\s+/g," ") }
+
+  async function onRegister(e){
+    e.preventDefault();
+    const iso=sessionSelect.value; const name=cleanName(nameInput.value);
+    if(!name){ statusEl.textContent="Please enter your name."; nameInput.focus(); return }
+
+    if(USING_BACKEND){
+      const res=await apiRegister(iso,name,DEVICE_ID);
+      if(!res){ statusEl.textContent="Server unavailable — saved locally for now." }
+      else if(!res.ok){ const map={closed:"Registration is closed for this session.","already-has-spot":"This device already has a spot. Cancel it first.","name-exists":"You're already on the list.",busy:"Please try again."}; statusEl.textContent=map[res.error]||"Failed to register."; await updateUI(); return }
+      else { statusEl.textContent = res.mode==='waitlisted' ? `Session is full — added to waitlist (position #${res.position}).` : "Registered! See you on court."; await updateUI(); nameInput.value=""; return }
+    }
+
+    const sessionDate=toDateLocal(iso); const deadline=fmtDeadline(sessionDate);
+    if(nowLocal()>deadline){ await updateUI(); return }
+
+    const state=getStateLocal(iso);
+    if(hasOwnEntry(state)){ statusEl.textContent="This device already has a spot. Cancel it first."; return }
+    if(state.regs.some(e=>e.name===name)||state.waitlist.some(e=>e.name===name)){ statusEl.textContent="You're already on the list."; return }
+    const entry={name,device:DEVICE_ID};
+    if(state.regs.length<SLOT_LIMIT){ state.regs.push(entry); setStateLocal(iso,state); statusEl.textContent="Registered! See you on court." }
+    else { state.waitlist.push(entry); setStateLocal(iso,state); const pos=state.waitlist.length; statusEl.textContent=`Session is full — added to waitlist (position #${pos}).` }
+    nameInput.value=""; await updateUI();
+  }
+
+  async function cancelEntry(iso, token){
+    if(USING_BACKEND){
+      const res=await apiCancel(iso, token);
+      if(!res){ statusEl.textContent="Server unavailable — if you cancel now it only affects this browser." }
+      else if(!res.ok){ statusEl.textContent = res.error==='forbidden-or-not-found' ? "You can only cancel your own spot." : "Failed to cancel."; await updateUI(); return }
+      else { statusEl.textContent = res.promoted ? `Your spot has been canceled. Promoted ${res.promoted.name} from waitlist.` : "Canceled."; await updateUI(); return }
+    }
+
+    const state=getStateLocal(iso);
+    const dev=token&&token.device||null; const nm=token&&token.name||"";
+    if(dev && dev!==DEVICE_ID){ statusEl.textContent="You can only cancel your own spot."; setStateLocal(iso,state); await updateUI(); return }
+
+    if(dev===DEVICE_ID){
+      let idx=state.regs.findIndex(e=>e.device===DEVICE_ID);
+      if(idx!==-1){ state.regs.splice(idx,1); if(state.waitlist.length){ const promoted=state.waitlist.shift(); state.regs.push(promoted); statusEl.textContent=`Your spot has been canceled. Promoted ${promoted.name} from waitlist.` } else { statusEl.textContent="Your spot has been canceled." } }
+      else { idx=state.waitlist.findIndex(e=>e.device===DEVICE_ID); if(idx!==-1){ state.waitlist.splice(idx,1); statusEl.textContent="Removed from waitlist." } }
+    } else {
+      const typed=(nameInput.value||"").trim();
+      if(!typed || typed!==nm){ statusEl.textContent="Type this exact name in the input above, then click Cancel again."; setStateLocal(iso,state); await updateUI(); return }
+      let idx=state.regs.findIndex(e=>e.device==null && e.name===nm);
+      if(idx!==-1){ state.regs.splice(idx,1); if(state.waitlist.length){ const promoted=state.waitlist.shift(); state.regs.push(promoted); statusEl.textContent=`Canceled. Promoted ${promoted.name} from waitlist.` } else { statusEl.textContent="Canceled." } }
+      else { idx=state.waitlist.findIndex(e=>e.device==null && e.name===nm); if(idx!==-1){ state.waitlist.splice(idx,1); statusEl.textContent="Canceled from waitlist." } else { statusEl.textContent="No matching entry found." } }
+    }
+    setStateLocal(iso,state); await updateUI();
+  }
+
+  document.addEventListener("DOMContentLoaded",()=>{ populateSessions(); detectBackend().then(updateUI);
+    document.querySelector("#registerBtn").addEventListener("click",()=>document.querySelector("#register").scrollIntoView({behavior:"smooth"}));
+    document.querySelector("#regForm").addEventListener("submit",e=>onRegister(e));
+    sessionSelect.addEventListener("change",()=>updateUI());
+    [nameList,waitList].forEach(list=>list.addEventListener("click",e=>{ const btn=e.target.closest("button.cancel"); if(!btn) return; e.preventDefault(); e.stopPropagation(); const iso=sessionSelect.value; const token={device:btn.getAttribute("data-device"),name:btn.getAttribute("data-name")}; cancelEntry(iso,token) }));
+    document.querySelector("#year").textContent=new Date().getFullYear();
+  });
+</script>
 </body>
 </html>

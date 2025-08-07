@@ -1,24 +1,14 @@
-# Tennis Drill — Biweekly Sessions
+# Tennis Drill
 
-One-page site with shared registrations and waitlist using **Vercel KV**.
+Bi-weekly tennis drill sign-ups. 6 slots per session. Waitlist with auto-promotion.
+Frontend: static `index.html`. Backend: Vercel Serverless Functions + Vercel KV.
 
-## Deploy (GitHub + Vercel)
+## Deadline rule
+Registration closes at **5:00 PM (America/Denver) on the day of the session**. After that, users can still **cancel**, but cannot register or move off the waitlist.
 
-1. Create a new GitHub repo (empty).
-2. Push this folder:
-   ```bash
-   git init
-   git add .
-   git commit -m "initial"
-   git branch -M main
-   git remote add origin <YOUR_REPO_URL>
-   git push -u origin main
-   ```
-3. On Vercel: New Project → Import Git Repository → pick this repo.
-   - Framework Preset: **Other** (Static)
-   - Build Command: *(empty)*
-   - Output Directory: *(empty or `/`)*
-
-4. In Vercel → Storage → **KV** → Create Database (Region: US). Vercel will inject env vars to your project automatically.
-
-5. Redeploy once. Visit your `*.vercel.app` URL.
+## Deploy (Vercel)
+1. Import this repo in Vercel (Other / Static; build/output empty).
+2. Marketplace → **Vercel KV** → Install → link this project (Production, US).
+3. Project → **Settings → Environment Variables** should show `KV_URL`, `KV_REST_API_URL`, `KV_REST_API_TOKEN`.
+4. **Redeploy**.
+5. Test: `https://<your-domain>.vercel.app/api/session?date=2025-08-07` returns JSON.

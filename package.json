@@ -1,6 +1,6 @@
 {
   "type": "module",
   "dependencies": {
-    "@upstash/redis": "^1.28.0"
+    "@vercel/kv": "^1.0.0"
   }
 }
