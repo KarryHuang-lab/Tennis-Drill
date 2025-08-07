@@ -1,6 +1,6 @@
-# Tennis Drill
+# Tennis Drill — Smart Burst Polling
 
-Register, cancel, and waitlist for tennis drill sessions.
-
-- 6 slots per session — first come, first served.
-- Register by **5:00 PM (America/Denver) on the day of the session** (DST-safe).
+- Idle poll every 30s (when tab is visible).
+- When a change is detected *or* after user action (register/cancel/session switch/focus),
+  poll every **2s** for **30s**, then fall back to idle.
+- API responses include `Cache-Control: no-store` to avoid caching.

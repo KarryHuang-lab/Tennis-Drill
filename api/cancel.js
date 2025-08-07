@@ -1,8 +1,16 @@
 import { withLock, readState, writeState } from './_util.js';
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end();
+  if (req.method !== 'POST') { 
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+ return res.status(405).end(); }
   const { date, device, name } = req.body ?? {};
-  if (!date) return res.status(400).json({ ok:false, error: 'date required' });
+  if (!date) { 
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+ return res.status(400).json({ ok:false, error: 'date required' }); }
 
   const out = await withLock(date, async () => {
     const state = await readState(date);
@@ -26,6 +34,15 @@ export default async function handler(req, res) {
     return { ok:true };
   });
 
-  if (!out?.ok) return res.status(403).json(out);
+  if (!out?.ok) { 
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+ return res.status(403).json(out); }
+  
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+
   return res.status(200).json(out);
 }

@@ -32,7 +32,7 @@
     .cta{appearance:none;border:0;padding:14px 22px;border-radius:14px;letter-spacing:.2px;color:#00141a;cursor:pointer;
       background: radial-gradient(80% 220% at 10% 10%, var(--accent), var(--accent-2));
       box-shadow: 0 10px 24px rgba(60,150,255,0.25), inset 0 0 0 2px rgba(0,0,0,0.05);
-      font-size:14px; font-weight:700;} /* bold per request */
+      font-size:14px; font-weight:700;}
 
     .section{max-width:800px;margin:56px auto;padding:0 20px}
     #register.section{width:800px;max-width:800px;margin-left:auto;margin-right:auto}
@@ -46,9 +46,9 @@
     .grid{display:grid;gap:12px;align-items:end}
     @media (min-width:560px){ .grid{ grid-template-columns: 1fr auto; } } /* button to right */
     .btns{display:flex;gap:8px;margin-top:0; align-self:end}
-    .btn{appearance:none;border:1px solid var(--border);background:#0f141b;color:var(--text);padding:10px 14px;border-radius:12px;font-weight:700;cursor:pointer} /* bold per request */
+    .btn{appearance:none;border:1px solid var(--border);background:#0f141b;color:var(--text);padding:10px 14px;border-radius:12px;font-weight:700;cursor:pointer}
     .btn.primary{border:1px solid rgba(62,194,255,0.35);color:#001410;background:linear-gradient(135deg,var(--accent) 0%,#b7ff98 30%,var(--accent-2) 70%,#a8e4ff 100%)}
-    .reg-btn{font-size:14px;font-weight:700} /* only "Register" button, bold 14px */
+    .reg-btn{font-size:14px;font-weight:700}
     .btn[disabled]{opacity:.55;cursor:not-allowed}
     .status{min-height:24px;margin:8px 0 0;color:var(--muted)}
 
@@ -131,6 +131,14 @@
   const DEVICE_ID_KEY = "tennis_drill_device_id";
   const DENVER_TZ = 'America/Denver';
 
+  // smart burst polling
+  const IDLE_MS = 30000;       // 30s idle poll
+  const BURST_MS = 2000;       // 2s fast poll
+  const BURST_WINDOW = 30000;  // keep fast poll for 30s after a change/action
+  let polling = false;
+  let burstUntil = 0;
+  let lastSnapshot = "";
+
   let USING_BACKEND = false;
 
   const $ = (s)=>document.querySelector(s);
@@ -189,11 +197,11 @@
   }
   async function apiRegister(iso,name,device){
     if(!USING_BACKEND) return null;
-    try{ const r=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date:iso,name,device})}); return await r.json() }catch{ USING_BACKEND=false; return null }
+    try{ const r=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json','Cache-Control':'no-store'},body:JSON.stringify({date:iso,name,device})}); return await r.json() }catch{ USING_BACKEND=false; return null }
   }
   async function apiCancel(iso,token){
     if(!USING_BACKEND) return null;
-    try{ const r=await fetch('/api/cancel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date:iso,device:token.device||null,name:token.name||null})}); return await r.json() }catch{ USING_BACKEND=false; return null }
+    try{ const r=await fetch('/api/cancel',{method:'POST',headers:{'Content-Type':'application/json','Cache-Control':'no-store'},body:JSON.stringify({date:iso,device:token.device||null,name:token.name||null})}); return await r.json() }catch{ USING_BACKEND=false; return null }
   }
 
   async function detectBackend(){
@@ -223,6 +231,13 @@
     return inRegs||inWait||null;
   }
 
+  function snapshotOf(state){
+    // A small digest to detect changes; names + list lengths is enough
+    const regNames = state.regs.map(e=>e.name).join('|');
+    const waitNames = state.waitlist.map(e=>e.name).join('|');
+    return regNames + '//' + waitNames;
+  }
+
   function renderLists(state){
     const bind = (btn)=>btn.addEventListener("click",(e)=>{e.preventDefault();e.stopPropagation(); const iso=sessionSelect.value; const token={device:btn.getAttribute("data-device"),name:btn.getAttribute("data-name")}; void cancelEntry(iso,token)});
 
@@ -233,7 +248,7 @@
       const dot=document.createElement("span"); dot.className="dot";
       const label=document.createElement("span"); label.textContent=e.name;
       left.appendChild(dot); left.appendChild(label);
-      if(e.device===DEVICE_ID){ const tag=document.createElement("span"); tag.className="tag"; tag.textContent="Yours"; left.appendChild(tag) }
+      if(e.device===DEVICE_ID){ const tag=document.createElement("span"); tag.className="tag"; textContent=""; tag.textContent="Yours"; left.appendChild(tag) }
       li.appendChild(left);
       if(e.device===DEVICE_ID){ const b=document.createElement("button"); b.className="cancel"; b.type="button"; b.textContent="Cancel"; b.setAttribute("data-name",e.name); b.setAttribute("data-device",DEVICE_ID); li.appendChild(b); bind(b) }
       nameList.appendChild(li);
@@ -256,15 +271,18 @@
 
   async function updateUI(){
     const iso=sessionSelect.value;
-    if(!iso){ remainingV.textContent="—"; deadlineV.textContent="—"; nameList.innerHTML=""; waitList.innerHTML=""; divider.style.display="none"; waitWrap.style.display="none"; doRegister.disabled=true; statusEl.textContent=""; return }
+    if(!iso){ remainingV.textContent="—"; deadlineV.textContent="—"; nameList.innerHTML=""; waitList.innerHTML=""; divider.style.display="none"; waitWrap.style.display="none"; doRegister.disabled=true; statusEl.textContent=""; return {changed:false} }
 
     let state, closed;
     if(USING_BACKEND){ const data=await fetchSession(iso); if(data){ state={regs:data.regs||[], waitlist:data.waitlist||[]}; closed=!!data.closed } }
     if(!state){ const sessionDate=toDateLocal(iso); state=getStateLocal(iso); closed=nowLocal()>fmtDeadline(sessionDate) }
 
+    const newSnap = snapshotOf(state);
+    const changed = newSnap !== lastSnapshot;
+    lastSnapshot = newSnap;
+
     const remaining=Math.max(0, SLOT_LIMIT - state.regs.length);
     const isFull=remaining===0;
-    const deadline=fmtDeadline(toDateLocal(iso));
 
     remainingV.textContent = remaining+" out of "+SLOT_LIMIT;
     deadlineV.textContent = deadlineLabelDenver(iso);
@@ -277,13 +295,32 @@
 
     doRegister.textContent = isFull ? "Add to waitlist" : "Register";
     doRegister.dataset.mode = isFull ? "wait" : "reg";
-    doRegister.disabled = closed;
+    doRegister.disabled = closed || !!hasOwnEntry(state);
 
-    const mine=hasOwnEntry(state);
-    if(mine){ doRegister.disabled=true; statusEl.textContent="" }
-    else if(closed){ statusEl.textContent="Registration is closed for this session (after 5 PM)." }
-    else if(isFull){ statusEl.textContent="This session is full. You can join the waitlist." }
-    else { statusEl.textContent = ""; }
+    if(closed){ statusEl.textContent="Registration is closed for this session (after 5 PM)." }
+    else if(isFull && !hasOwnEntry(state)){ statusEl.textContent="This session is full. You can join the waitlist." }
+    else { if(!hasOwnEntry(state)) statusEl.textContent=""; }
+
+    return {changed};
+  }
+
+  async function smartPollLoop(){
+    if(polling) return;
+    polling = true;
+    while(polling){
+      if(document.hidden){ await new Promise(r=>setTimeout(r, IDLE_MS)); continue; }
+      await detectBackend();
+      const {changed} = await updateUI();
+      const now = Date.now();
+      if (changed) burstUntil = now + BURST_WINDOW;
+      const inBurst = now < burstUntil;
+      const delay = inBurst ? BURST_MS : IDLE_MS;
+      await new Promise(r=>setTimeout(r, delay));
+    }
+  }
+
+  function kickBurst(){
+    burstUntil = Date.now() + BURST_WINDOW;
   }
 
   function cleanName(s){ return (s||"").trim().replace(/\s+/g," ") }
@@ -296,28 +333,28 @@
     if(USING_BACKEND){
       const res=await apiRegister(iso,name,DEVICE_ID);
       if(!res){ statusEl.textContent="Server unavailable — saved locally for now." }
-      else if(!res.ok){ const map={closed:"Registration is closed for this session.","already-has-spot":"This device already has a spot. Cancel it first.","name-exists":"You're already on the list.",busy:"Please try again."}; statusEl.textContent=map[res.error]||"Failed to register."; await updateUI(); return }
-      else { statusEl.textContent = res.mode==='waitlisted' ? `Session is full — added to waitlist (position #${res.position}).` : "Registered! See you on court."; await updateUI(); nameInput.value=""; return }
+      else if(!res.ok){ const map={closed:"Registration is closed for this session.","already-has-spot":"This device already has a spot. Cancel it first.","name-exists":"You're already on the list.",busy:"Please try again."}; statusEl.textContent=map[res.error]||"Failed to register."; await updateUI(); kickBurst(); return }
+      else { statusEl.textContent = res.mode==='waitlisted' ? `Session is full — added to waitlist (position #${res.position}).` : "Registered! See you on court."; await updateUI(); nameInput.value=""; kickBurst(); return }
     }
 
     const sessionDate=toDateLocal(iso); const deadline=fmtDeadline(sessionDate);
     if(nowLocal()>deadline){ await updateUI(); return }
 
     const state=getStateLocal(iso);
-    if(hasOwnEntry(state)){ statusEl.textContent=""; return }
+    if(state.regs.some(e=>e.device===DEVICE_ID) || state.waitlist.some(e=>e.device===DEVICE_ID)){ statusEl.textContent=""; return }
     if(state.regs.some(e=>e.name===name)||state.waitlist.some(e=>e.name===name)){ statusEl.textContent="You're already on the list."; return }
     const entry={name,device:DEVICE_ID};
     if(state.regs.length<SLOT_LIMIT){ state.regs.push(entry); setStateLocal(iso,state); statusEl.textContent="Registered! See you on court." }
     else { state.waitlist.push(entry); setStateLocal(iso,state); const pos=state.waitlist.length; statusEl.textContent=`Session is full — added to waitlist (position #${pos}).` }
-    nameInput.value=""; await updateUI();
+    nameInput.value=""; await updateUI(); kickBurst();
   }
 
   async function cancelEntry(iso, token){
     if(USING_BACKEND){
       const res=await apiCancel(iso, token);
       if(!res){ statusEl.textContent="Server unavailable — if you cancel now it only affects this browser." }
-      else if(!res.ok){ statusEl.textContent = res.error==='forbidden-or-not-found' ? "You can only cancel your own spot." : "Failed to cancel."; await updateUI(); return }
-      else { statusEl.textContent = res.promoted ? `Your spot has been canceled. Promoted ${res.promoted.name} from waitlist.` : "Canceled."; await updateUI(); return }
+      else if(!res.ok){ statusEl.textContent = res.error==='forbidden-or-not-found' ? "You can only cancel your own spot." : "Failed to cancel."; await updateUI(); kickBurst(); return }
+      else { statusEl.textContent = res.promoted ? `Your spot has been canceled. Promoted ${res.promoted.name} from waitlist.` : "Canceled."; await updateUI(); kickBurst(); return }
     }
 
     const state=getStateLocal(iso);
@@ -335,14 +372,20 @@
       if(idx!==-1){ state.regs.splice(idx,1); if(state.waitlist.length){ const promoted=state.waitlist.shift(); state.regs.push(promoted); statusEl.textContent=`Canceled. Promoted ${promoted.name} from waitlist.` } else { statusEl.textContent="Canceled." } }
       else { idx=state.waitlist.findIndex(e=>e.device==null && e.name===nm); if(idx!==-1){ state.waitlist.splice(idx,1); statusEl.textContent="Canceled from waitlist." } else { statusEl.textContent="No matching entry found." } }
     }
-    setStateLocal(iso,state); await updateUI();
+    setStateLocal(iso,state); await updateUI(); kickBurst();
   }
 
-  document.addEventListener("DOMContentLoaded",()=>{ populateSessions(); detectBackend().then(updateUI);
+  document.addEventListener("DOMContentLoaded",()=>{
+    populateSessions();
+    detectBackend().then(updateUI).then(()=>{ smartPollLoop(); });
+
     document.querySelector("#registerBtn").addEventListener("click",()=>document.querySelector("#register").scrollIntoView({behavior:"smooth"}));
     document.querySelector("#regForm").addEventListener("submit",e=>onRegister(e));
-    sessionSelect.addEventListener("change",()=>updateUI());
+    sessionSelect.addEventListener("change",()=>{ updateUI(); kickBurst(); });
     [nameList,waitList].forEach(list=>list.addEventListener("click",e=>{ const btn=e.target.closest("button.cancel"); if(!btn) return; e.preventDefault(); e.stopPropagation(); const iso=sessionSelect.value; const token={device:btn.getAttribute("data-device"),name:btn.getAttribute("data-name")}; cancelEntry(iso,token) }));
+    window.addEventListener("focus",()=>{ kickBurst(); });
+    document.addEventListener("visibilitychange",()=>{ if(!document.hidden){ kickBurst(); }});
+
     document.querySelector("#year").textContent=new Date().getFullYear();
   });
 </script>

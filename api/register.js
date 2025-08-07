@@ -1,8 +1,16 @@
 import { SLOT_LIMIT, withLock, readState, writeState, isClosed } from './_util.js';
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end();
+  if (req.method !== 'POST') { 
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+ return res.status(405).end(); }
   const { date, name, device } = req.body ?? {};
-  if (!date || !name || !device) return res.status(400).json({ ok:false, error: 'date, name, device required' });
+  if (!date || !name || !device) { 
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+ return res.status(400).json({ ok:false, error: 'date, name, device required' }); }
 
   const out = await withLock(date, async () => {
     if (isClosed(date)) return { ok:false, error:'closed' };
@@ -19,7 +27,17 @@ export default async function handler(req, res) {
 
   if (!out?.ok){
     const map = { closed:400, 'already-has-spot':409, 'name-exists':409, busy:423 };
+    
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+
     return res.status(map[out?.error] ?? 500).json(out);
   }
+  
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+
   return res.status(200).json(out);
 }
