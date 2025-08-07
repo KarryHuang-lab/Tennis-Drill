@@ -12,10 +12,9 @@ export async function writeState(date, state) {
   await kv.set(key(date), state);
 }
 
-/** Robust Denver 5:00 PM deadline (handles DST correctly without external libs). */
+/** Robust Denver 5:00 PM deadline (DST-safe). */
 function getDenverOffsetMs(dateISO) {
   const [y, m, d] = dateISO.split('-').map(Number);
-  // Pick UTC noon; for a given local day the offset doesn't change around 5 PM
   const utcNoon = Date.UTC(y, m - 1, d, 12, 0, 0);
   const fmt = new Intl.DateTimeFormat('en-US', {
     timeZone: TZ,
@@ -26,13 +25,12 @@ function getDenverOffsetMs(dateISO) {
   const parts = fmt.formatToParts(new Date(utcNoon));
   const get = (t) => +parts.find(p => p.type === t).value;
   const asIfUTC = Date.UTC(get('year'), get('month') - 1, get('day'), get('hour'), get('minute'), get('second'));
-  return asIfUTC - utcNoon; // local - UTC (ms)
+  return asIfUTC - utcNoon;
 }
 
 export function isClosed(dateISO, now = new Date()) {
   const [y, m, d] = dateISO.split('-').map(Number);
   const offset = getDenverOffsetMs(dateISO);
-  // local 17:00 as if UTC minus offset => actual UTC timestamp of 5 PM Denver
   const localAsUTC = Date.UTC(y, m - 1, d, 17, 0, 0);
   const deadlineUTCms = localAsUTC - offset;
   return now.getTime() > deadlineUTCms;

@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Tennis Drill — Sessions</title>
-  <meta name="description" content="Register for biweekly Tennis Drill sessions. 6 slots per session. First come, first served." />
+  <meta name="description" content="Register for Tennis Drill sessions." />
   <style>
     :root{
       --bg:#0b0f14;--panel:#0f141b;--text:#d9e1ee;--muted:#93a1b3;
@@ -13,7 +13,7 @@
     *{box-sizing:border-box} html,body{height:100%}
     body{margin:0;background: radial-gradient(900px 450px at 20% 30%, rgba(124,255,98,0.08), transparent 60%), var(--bg);
          color:var(--text);font:16px/1.6 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial}
-    .hero{position:relative;min-height:70vh;display:grid;place-items:center;border-bottom:1px solid var(--border)}
+    .hero{position:relative;min-height:60vh;display:grid;place-items:center;border-bottom:1px solid var(--border)}
     .hero::before{content:"";position:absolute;inset:0;background:
       repeating-linear-gradient(0deg,transparent,transparent 46px,rgba(255,255,255,0.06) 47px),
       repeating-linear-gradient(90deg,transparent,transparent 46px,rgba(255,255,255,0.06) 47px);
@@ -23,10 +23,11 @@
     .hero-content{position:relative;z-index:1;text-align:center;padding:48px 24px;max-width:940px}
     .title{font-size:clamp(40px,6vw,72px);margin:0 0 12px;background:linear-gradient(90deg,var(--accent) 0%,#a0ffd1 25%,var(--accent-2) 55%,#9ad3ff 75%,var(--accent) 100%);
       -webkit-background-clip:text;background-clip:text;color:transparent}
-    .subtitle{margin:0 0 12px} .rules{list-style:none;padding:0;margin:0 0 28px;color:var(--muted)} .rules li{margin:4px 0}
-    .cta{appearance:none;border:0;padding:14px 22px;font-weight:700;border-radius:14px;letter-spacing:.2px;color:#00141a;cursor:pointer;
+    .rules{list-style:none;padding:0;margin:0 0 28px;color:var(--muted)} .rules li{margin:6px 0}
+    .cta{appearance:none;border:0;padding:14px 22px;border-radius:14px;letter-spacing:.2px;color:#00141a;cursor:pointer;
       background: radial-gradient(80% 220% at 10% 10%, var(--accent), var(--accent-2));
-      box-shadow: 0 10px 24px rgba(60,150,255,0.25), inset 0 0 0 2px rgba(0,0,0,0.05)}
+      box-shadow: 0 10px 24px rgba(60,150,255,0.25), inset 0 0 0 2px rgba(0,0,0,0.05);
+      font-size:14px; font-weight:400;}
     .section{max-width:800px;margin:56px auto;padding:0 20px}
     #register.section{width:800px;max-width:800px;margin-left:auto;margin-right:auto}
     @media (max-width:860px){#register.section{width:100%}}
@@ -37,11 +38,11 @@
     select.input{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23d9e1ee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
       background-repeat:no-repeat;background-position:right 16px center;padding-right:44px}
     .grid{display:grid;gap:12px;align-items:end}
-    /* Put button to the right of the input on >= 560px */
-    @media (min-width:560px){ .grid{ grid-template-columns: 1fr auto; } }
+    @media (min-width:560px){ .grid{ grid-template-columns: 1fr auto; } } /* button to right */
     .btns{display:flex;gap:8px;margin-top:0; align-self:end}
     .btn{appearance:none;border:1px solid var(--border);background:#0f141b;color:var(--text);padding:10px 14px;border-radius:12px;font-weight:600;cursor:pointer}
     .btn.primary{border:1px solid rgba(62,194,255,0.35);color:#001410;background:linear-gradient(135deg,var(--accent) 0%,#b7ff98 30%,var(--accent-2) 70%,#a8e4ff 100%)}
+    .reg-btn{font-size:14px;font-weight:400} /* only "Register" button */
     .btn[disabled]{opacity:.55;cursor:not-allowed}
     .status{min-height:24px;margin:8px 0 0;color:var(--muted)}
     .meta{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:16px 0 0}
@@ -61,10 +62,10 @@
   <div class="hero-overlay"></div>
   <div class="hero-content">
     <h1 class="title">Tennis Drill</h1>
-    <p class="subtitle">Bi-weekly sessions starting Aug 7, 2025. <br /><strong>6 slots</strong> per session — first come, first served.</p>
     <ul class="rules">
       <li>Register with your name. You can cancel anytime before the session.</li>
-      <li>Registration closes at <strong>5:00 PM (day of session)</strong>, America/Denver.</li>
+      <li><strong>Register by 5:00 PM on the day of the session.</strong></li>
+      <li>6 slots per session — first come, first served.</li>
     </ul>
     <button id="registerBtn" class="cta">Register Now</button>
   </div>
@@ -84,7 +85,7 @@
             <input id="nameInput" class="input" placeholder="e.g., Alex Kim" maxlength="60" />
           </div>
           <div class="btns">
-            <button id="doRegister" class="btn primary" type="submit">Register</button>
+            <button id="doRegister" class="btn primary reg-btn" type="submit">Register</button>
           </div>
         </div>
 
@@ -146,16 +147,14 @@
 
   function toDateLocal(iso){ const [y,m,d]=iso.split("-").map(Number); return new Date(y,m-1,d) }
   function fmtDateLong(d){ return d.toLocaleString("en-US",{weekday:"short",year:"numeric",month:"short",day:"numeric"}) }
-  // same-day 5:00 PM deadline (date object still in local env; backend is authoritative)
   function fmtDeadline(d){ const x=new Date(d); x.setHours(17,0,0,0); return x }
   function nowLocal(){ return new Date() }
   function endOfDayLocal(d){ const e=new Date(d); e.setHours(23,59,59,999); return e }
   function isFinished(d){ return nowLocal()>endOfDayLocal(d) }
 
-  // Render deadline label in Denver timezone to avoid confusion
   function deadlineLabelDenver(iso){
     const [y,m,d] = iso.split('-').map(Number);
-    const noonUTC = new Date(Date.UTC(y, m-1, d, 12, 0, 0)); // avoid DST edge
+    const noonUTC = new Date(Date.UTC(y, m-1, d, 12, 0, 0));
     const datePart = new Intl.DateTimeFormat('en-US', {
       timeZone: DENVER_TZ, weekday:'short', month:'short', day:'numeric'
     }).format(noonUTC);
@@ -261,7 +260,6 @@
     const deadline=fmtDeadline(toDateLocal(iso));
 
     remainingV.textContent = remaining+" out of "+SLOT_LIMIT;
-    // show Denver TZ label
     deadlineV.textContent = deadlineLabelDenver(iso);
 
     renderLists(state);
@@ -275,10 +273,10 @@
     doRegister.disabled = closed;
 
     const mine=hasOwnEntry(state);
-    if(mine){ doRegister.disabled=true; statusEl.textContent="" }  // remove message
+    if(mine){ doRegister.disabled=true; statusEl.textContent="" }
     else if(closed){ statusEl.textContent="Registration is closed for this session (after 5 PM)." }
     else if(isFull){ statusEl.textContent="This session is full. You can join the waitlist." }
-    else { statusEl.textContent = USING_BACKEND ? "" : ""; }  // no demo note
+    else { statusEl.textContent = ""; }
   }
 
   function cleanName(s){ return (s||"").trim().replace(/\s+/g," ") }
@@ -299,7 +297,7 @@
     if(nowLocal()>deadline){ await updateUI(); return }
 
     const state=getStateLocal(iso);
-    if(hasOwnEntry(state)){ statusEl.textContent=""; return } // no message
+    if(hasOwnEntry(state)){ statusEl.textContent=""; return }
     if(state.regs.some(e=>e.name===name)||state.waitlist.some(e=>e.name===name)){ statusEl.textContent="You're already on the list."; return }
     const entry={name,device:DEVICE_ID};
     if(state.regs.length<SLOT_LIMIT){ state.regs.push(entry); setStateLocal(iso,state); statusEl.textContent="Registered! See you on court." }
