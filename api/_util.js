@@ -3,6 +3,7 @@ import { kv } from '@vercel/kv';
 export const SLOT_LIMIT = 6;
 export const TZ = 'America/Denver';
 const key = (date) => `td:session:${date}`;
+const verKey = (date) => `td:ver:${date}`;
 const lockKey = (date) => `td:lock:${date}`;
 
 export async function readState(date) {
@@ -10,6 +11,12 @@ export async function readState(date) {
 }
 export async function writeState(date, state) {
   await kv.set(key(date), state);
+}
+export async function bumpVersion(date) {
+  await kv.incr(verKey(date));
+}
+export async function readVersion(date) {
+  return (await kv.get(verKey(date))) ?? 0;
 }
 
 /** Robust Denver 5:00 PM deadline (DST-safe). */

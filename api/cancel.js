@@ -1,4 +1,4 @@
-import { withLock, readState, writeState } from './_util.js';
+import { withLock, readState, writeState, bumpVersion } from './_util.js';
 export default async function handler(req, res) {
   if (req.method !== 'POST') { 
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
@@ -28,9 +28,11 @@ export default async function handler(req, res) {
       const promoted = state.waitlist.shift();
       state.regs.push(promoted);
       await writeState(date, state);
+      await bumpVersion(date);
       return { ok:true, promoted };
     }
     await writeState(date, state);
+    await bumpVersion(date);
     return { ok:true };
   });
 

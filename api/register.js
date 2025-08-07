@@ -1,4 +1,4 @@
-import { SLOT_LIMIT, withLock, readState, writeState, isClosed } from './_util.js';
+import { SLOT_LIMIT, withLock, readState, writeState, isClosed, bumpVersion } from './_util.js';
 export default async function handler(req, res) {
   if (req.method !== 'POST') { 
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
@@ -22,6 +22,7 @@ export default async function handler(req, res) {
     if (state.regs.length < SLOT_LIMIT) state.regs.push(entry);
     else { state.waitlist.push(entry); mode = 'waitlisted'; }
     await writeState(date, state);
+    await bumpVersion(date);
     return { ok:true, mode, position: mode==='waitlisted' ? state.waitlist.length : null };
   });
 

@@ -131,15 +131,14 @@
   const DEVICE_ID_KEY = "tennis_drill_device_id";
   const DENVER_TZ = 'America/Denver';
 
-  // smart burst polling
-  const IDLE_MS = 30000;       // 30s idle poll
-  const BURST_MS = 2000;       // 2s fast poll
-  const BURST_WINDOW = 30000;  // keep fast poll for 30s after a change/action
-  let polling = false;
+  // watch: tiny version polling every 2s, full data pulled only when version changes
+  const WATCH_MS = 2000;
+  const BURST_WINDOW = 30000; // keep fast polls for UI update cadence if needed
   let burstUntil = 0;
-  let lastSnapshot = "";
-
+  let lastVersion = null;
   let USING_BACKEND = false;
+  let watchTimer = null;
+  let lastSnapshot = "";
 
   const $ = (s)=>document.querySelector(s);
   const sessionSelect = $("#sessionSelect");
@@ -203,6 +202,10 @@
     if(!USING_BACKEND) return null;
     try{ const r=await fetch('/api/cancel',{method:'POST',headers:{'Content-Type':'application/json','Cache-Control':'no-store'},body:JSON.stringify({date:iso,device:token.device||null,name:token.name||null})}); return await r.json() }catch{ USING_BACKEND=false; return null }
   }
+  async function apiVersion(iso){
+    if(!USING_BACKEND) return null;
+    try{ const r=await fetch(`/api/version?date=${iso}`,{cache:'no-store'}); if(!r.ok) throw 0; return await r.json() }catch{ return null }
+  }
 
   async function detectBackend(){
     const iso=sessionSelect.value; if(!iso){USING_BACKEND=false;return}
@@ -232,7 +235,6 @@
   }
 
   function snapshotOf(state){
-    // A small digest to detect changes; names + list lengths is enough
     const regNames = state.regs.map(e=>e.name).join('|');
     const waitNames = state.waitlist.map(e=>e.name).join('|');
     return regNames + '//' + waitNames;
@@ -248,7 +250,7 @@
       const dot=document.createElement("span"); dot.className="dot";
       const label=document.createElement("span"); label.textContent=e.name;
       left.appendChild(dot); left.appendChild(label);
-      if(e.device===DEVICE_ID){ const tag=document.createElement("span"); tag.className="tag"; textContent=""; tag.textContent="Yours"; left.appendChild(tag) }
+      if(e.device===DEVICE_ID){ const tag=document.createElement("span"); tag.className="tag"; tag.textContent="Yours"; left.appendChild(tag) }
       li.appendChild(left);
       if(e.device===DEVICE_ID){ const b=document.createElement("button"); b.className="cancel"; b.type="button"; b.textContent="Cancel"; b.setAttribute("data-name",e.name); b.setAttribute("data-device",DEVICE_ID); li.appendChild(b); bind(b) }
       nameList.appendChild(li);
@@ -271,14 +273,13 @@
 
   async function updateUI(){
     const iso=sessionSelect.value;
-    if(!iso){ remainingV.textContent="—"; deadlineV.textContent="—"; nameList.innerHTML=""; waitList.innerHTML=""; divider.style.display="none"; waitWrap.style.display="none"; doRegister.disabled=true; statusEl.textContent=""; return {changed:false} }
+    if(!iso){ remainingV.textContent="—"; deadlineV.textContent="—"; nameList.innerHTML=""; waitList.innerHTML=""; divider.style.display="none"; waitWrap.style.display="none"; doRegister.disabled=true; statusEl.textContent=""; return }
 
     let state, closed;
     if(USING_BACKEND){ const data=await fetchSession(iso); if(data){ state={regs:data.regs||[], waitlist:data.waitlist||[]}; closed=!!data.closed } }
     if(!state){ const sessionDate=toDateLocal(iso); state=getStateLocal(iso); closed=nowLocal()>fmtDeadline(sessionDate) }
 
     const newSnap = snapshotOf(state);
-    const changed = newSnap !== lastSnapshot;
     lastSnapshot = newSnap;
 
     const remaining=Math.max(0, SLOT_LIMIT - state.regs.length);
@@ -300,27 +301,33 @@
     if(closed){ statusEl.textContent="Registration is closed for this session (after 5 PM)." }
     else if(isFull && !hasOwnEntry(state)){ statusEl.textContent="This session is full. You can join the waitlist." }
     else { if(!hasOwnEntry(state)) statusEl.textContent=""; }
-
-    return {changed};
   }
 
-  async function smartPollLoop(){
-    if(polling) return;
-    polling = true;
-    while(polling){
-      if(document.hidden){ await new Promise(r=>setTimeout(r, IDLE_MS)); continue; }
+  async function watchVersionLoop(){
+    if(watchTimer) clearInterval(watchTimer);
+    watchTimer = setInterval(async ()=>{
+      if(document.hidden) return;
       await detectBackend();
-      const {changed} = await updateUI();
-      const now = Date.now();
-      if (changed) burstUntil = now + BURST_WINDOW;
-      const inBurst = now < burstUntil;
-      const delay = inBurst ? BURST_MS : IDLE_MS;
-      await new Promise(r=>setTimeout(r, delay));
-    }
-  }
-
-  function kickBurst(){
-    burstUntil = Date.now() + BURST_WINDOW;
+      const iso = sessionSelect.value;
+      if(!iso || !USING_BACKEND) return;
+      const v = await apiVersion(iso);
+      if(!v) return;
+      if(lastVersion === null){
+        lastVersion = v.version;
+        await updateUI();
+        return;
+      }
+      if(v.version !== lastVersion){
+        lastVersion = v.version;
+        burstUntil = Date.now() + BURST_WINDOW;
+        await updateUI();
+      }else{
+        // If在突发期内，保证 UI 更紧凑刷新（防止错过快速连锁变更）
+        if(Date.now() < burstUntil){
+          await updateUI();
+        }
+      }
+    }, WATCH_MS);
   }
 
   function cleanName(s){ return (s||"").trim().replace(/\s+/g," ") }
@@ -333,28 +340,27 @@
     if(USING_BACKEND){
       const res=await apiRegister(iso,name,DEVICE_ID);
       if(!res){ statusEl.textContent="Server unavailable — saved locally for now." }
-      else if(!res.ok){ const map={closed:"Registration is closed for this session.","already-has-spot":"This device already has a spot. Cancel it first.","name-exists":"You're already on the list.",busy:"Please try again."}; statusEl.textContent=map[res.error]||"Failed to register."; await updateUI(); kickBurst(); return }
-      else { statusEl.textContent = res.mode==='waitlisted' ? `Session is full — added to waitlist (position #${res.position}).` : "Registered! See you on court."; await updateUI(); nameInput.value=""; kickBurst(); return }
+      else if(!res.ok){ const map={closed:"Registration is closed for this session.","already-has-spot":"This device already has a spot. Cancel it first.","name-exists":"You're already on the list.",busy:"Please try again."}; statusEl.textContent=map[res.error]||"Failed to register."; await updateUI(); return }
+      else { statusEl.textContent = res.mode==='waitlisted' ? `Session is full — added to waitlist (position #${res.position}).` : "Registered! See you on court."; await updateUI(); nameInput.value=""; return }
     }
 
     const sessionDate=toDateLocal(iso); const deadline=fmtDeadline(sessionDate);
     if(nowLocal()>deadline){ await updateUI(); return }
-
     const state=getStateLocal(iso);
     if(state.regs.some(e=>e.device===DEVICE_ID) || state.waitlist.some(e=>e.device===DEVICE_ID)){ statusEl.textContent=""; return }
     if(state.regs.some(e=>e.name===name)||state.waitlist.some(e=>e.name===name)){ statusEl.textContent="You're already on the list."; return }
     const entry={name,device:DEVICE_ID};
     if(state.regs.length<SLOT_LIMIT){ state.regs.push(entry); setStateLocal(iso,state); statusEl.textContent="Registered! See you on court." }
     else { state.waitlist.push(entry); setStateLocal(iso,state); const pos=state.waitlist.length; statusEl.textContent=`Session is full — added to waitlist (position #${pos}).` }
-    nameInput.value=""; await updateUI(); kickBurst();
+    nameInput.value=""; await updateUI();
   }
 
   async function cancelEntry(iso, token){
     if(USING_BACKEND){
       const res=await apiCancel(iso, token);
       if(!res){ statusEl.textContent="Server unavailable — if you cancel now it only affects this browser." }
-      else if(!res.ok){ statusEl.textContent = res.error==='forbidden-or-not-found' ? "You can only cancel your own spot." : "Failed to cancel."; await updateUI(); kickBurst(); return }
-      else { statusEl.textContent = res.promoted ? `Your spot has been canceled. Promoted ${res.promoted.name} from waitlist.` : "Canceled."; await updateUI(); kickBurst(); return }
+      else if(!res.ok){ statusEl.textContent = res.error==='forbidden-or-not-found' ? "You can only cancel your own spot." : "Failed to cancel."; await updateUI(); return }
+      else { statusEl.textContent = res.promoted ? `Your spot has been canceled. Promoted ${res.promoted.name} from waitlist.` : "Canceled."; await updateUI(); return }
     }
 
     const state=getStateLocal(iso);
@@ -372,19 +378,18 @@
       if(idx!==-1){ state.regs.splice(idx,1); if(state.waitlist.length){ const promoted=state.waitlist.shift(); state.regs.push(promoted); statusEl.textContent=`Canceled. Promoted ${promoted.name} from waitlist.` } else { statusEl.textContent="Canceled." } }
       else { idx=state.waitlist.findIndex(e=>e.device==null && e.name===nm); if(idx!==-1){ state.waitlist.splice(idx,1); statusEl.textContent="Canceled from waitlist." } else { statusEl.textContent="No matching entry found." } }
     }
-    setStateLocal(iso,state); await updateUI(); kickBurst();
+    setStateLocal(iso,state); await updateUI();
   }
 
   document.addEventListener("DOMContentLoaded",()=>{
     populateSessions();
-    detectBackend().then(updateUI).then(()=>{ smartPollLoop(); });
+    detectBackend().then(updateUI).then(()=>{ watchVersionLoop(); });
 
     document.querySelector("#registerBtn").addEventListener("click",()=>document.querySelector("#register").scrollIntoView({behavior:"smooth"}));
     document.querySelector("#regForm").addEventListener("submit",e=>onRegister(e));
-    sessionSelect.addEventListener("change",()=>{ updateUI(); kickBurst(); });
+    sessionSelect.addEventListener("change",()=>{ updateUI(); lastVersion=null; }); // reset version on switch
     [nameList,waitList].forEach(list=>list.addEventListener("click",e=>{ const btn=e.target.closest("button.cancel"); if(!btn) return; e.preventDefault(); e.stopPropagation(); const iso=sessionSelect.value; const token={device:btn.getAttribute("data-device"),name:btn.getAttribute("data-name")}; cancelEntry(iso,token) }));
-    window.addEventListener("focus",()=>{ kickBurst(); });
-    document.addEventListener("visibilitychange",()=>{ if(!document.hidden){ kickBurst(); }});
+    window.addEventListener("focus",()=>{ lastVersion=null; }); // trigger full refresh on focus by resetting version so next tick updates
 
     document.querySelector("#year").textContent=new Date().getFullYear();
   });
